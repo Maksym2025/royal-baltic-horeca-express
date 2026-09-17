@@ -26,7 +26,8 @@ export function AuthFlow({ onReady }: Props) {
 
   async function google() {
     setError('');
-    await signIn.social({ provider: 'google', callbackURL: '/' });
+    const result = await signIn.social({ provider: 'google', callbackURL: '/live' });
+    if (result.error) setError(result.error.message || 'Google-Anmeldung fehlgeschlagen.');
   }
 
   async function company(e: FormEvent<HTMLFormElement>) {
