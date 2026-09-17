@@ -11,7 +11,3 @@ pnpm build
 ```
 
 Requires Node >=22.13. Neon migrations and server API are included but not connected. The UI uses clearly labelled demo data; newly created demo orders reset on reload. PWA installation requires a supported browser and HTTPS.
-
-## Project isolation
-
-This repository is the independent HoReCa Express application. The parent `Maksym2025/RB-ZCode` project must remain untouched. Backend target: the dedicated Neon project `royal-baltic-horeca-express`.
