@@ -1,5 +1,17 @@
-# Royal Baltic HoReCa Express
+# Royal Baltic · HoReCa Express
 
-Independent HoReCa ordering PWA for Royal Baltic. This repository is physically isolated from the parent `RB-ZCode` project.
+Mobile-first German B2B seafood ordering prototype built with React, App Router, Tailwind and Lucide. Open the catalog, choose a demo restaurant and try checkout and repeat orders. No real transactions are made.
 
-Initial source imported from the Astra/ChatGPT Sites prototype. Backend target: Neon PostgreSQL + Drizzle ORM. Payments target: Stripe sandbox during development.
+Read [implementation and architecture](docs/IMPLEMENTATION.md) for setup, file structure, PostgreSQL migration instructions and production limitations.
+
+```sh
+pnpm install
+pnpm dev
+pnpm build
+```
+
+Requires Node >=22.13. Neon migrations and server API are included but not connected. The UI uses clearly labelled demo data; newly created demo orders reset on reload. PWA installation requires a supported browser and HTTPS.
+
+## Project isolation
+
+This repository is the independent HoReCa Express application. The parent `Maksym2025/RB-ZCode` project must remain untouched. Backend target: the dedicated Neon project `royal-baltic-horeca-express`.
