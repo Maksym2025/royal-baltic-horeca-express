@@ -13,7 +13,7 @@ export function LiveCommerce(){
  const userId=session?.user?.id;
  const [company,setCompany]=useState<LiveCompany|null>(null),[products,setProducts]=useState<LiveProduct[]>([]),[slots,setSlots]=useState<LiveSlot[]>([]),[orders,setOrders]=useState<LiveOrder[]>([]),[cart,setCart]=useState<Cart>({}),[slot,setSlot]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[orderId,setOrderId]=useState('');
  async function load(){setError('');try{const c=await liveApi.company();setCompany(c.company);if(c.company?.verified){const [p,s,o]=await Promise.all([liveApi.products(),liveApi.slots(),liveApi.orders()]);setProducts(p);setSlots(s);setOrders(o);setSlot(x=>x||s[0]?.id||'')}}catch(e){setError(e instanceof Error?e.message:'Fehler beim Laden.')}}
- useEffect(()=>{if(!userId)return; void load();},[userId]);
+ useEffect(()=>{if(!userId)return;\n // Loading remote session-scoped data is the external synchronization this effect owns.\n // eslint-disable-next-line react-hooks/set-state-in-effect\n void load();\n},[userId]);
  const totals=useMemo(()=>products.reduce((a,p)=>{const q=cart[p.id]||0;const net=p.priceNetto*q;return {net:a.net+net,tax:a.tax+Math.round(net*p.vatRate/10000)}},{net:0,tax:0}),[products,cart]);
  const count=Object.values(cart).reduce((a,b)=>a+b,0);
  function qty(p:LiveProduct,d:number){setCart(c=>({...c,[p.id]:Math.max(0,Math.min(p.stock,(c[p.id]||0)+d))}))}
