@@ -1,4 +1,4 @@
-import {pgTable,pgEnum,uuid,text,integer,boolean,timestamp,date,jsonb,uniqueIndex,index,check} from 'drizzle-orm/pg-core';
+import {pgTable,pgEnum,uuid,text,integer,boolean,timestamp,date,uniqueIndex,index,check} from 'drizzle-orm/pg-core';
 import {sql} from 'drizzle-orm';
 
 export const paymentTerms=pgEnum('payment_terms',['INVOICE_7_DAYS','CARD_IMMEDIATE']);
