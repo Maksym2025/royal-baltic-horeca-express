@@ -29,6 +29,7 @@ export function apiError(error: unknown) {
         "Invoice not allowed",
         "Delivery slot unavailable",
         "Insufficient stock",
+        "Booked delivery slots cannot change date or window",
         "Paid orders require payment reconciliation before cancellation",
       ].includes(cause.message)
     )

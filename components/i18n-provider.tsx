@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import {
   dictionaries,
   type Locale,
@@ -18,6 +18,10 @@ export function I18nProvider({
   children: React.ReactNode;
 }) {
   const [locale, update] = useState(initialLocale);
+  useEffect(() => {
+    if ("serviceWorker" in navigator)
+      void navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }, []);
   function setLocale(next: Locale) {
     update(next);
     document.cookie = `rb_locale=${next};path=/;max-age=31536000;SameSite=Lax`;

@@ -84,6 +84,15 @@ function CommerceSession({
   const [online, setOnline] = useState(true);
   const pending = useRef<OrderRequest | null>(null);
   const storageKey = `rb-pending-${userId}`;
+  const cartKey = `rb-cart-${userId}`;
+  function storeCart(next: Record<string, number>) {
+    setCart(next);
+    try {
+      sessionStorage.setItem(cartKey, JSON.stringify(next));
+    } catch {
+      /* In-memory ordering still works. */
+    }
+  }
   const refresh = useCallback(async () => {
     try {
       const result = await liveApi.company();
@@ -126,6 +135,21 @@ function CommerceSession({
     const restore = async () => {
       update();
       try {
+        const savedCart = sessionStorage.getItem(cartKey);
+        if (savedCart) {
+          const parsed = JSON.parse(savedCart) as Record<string, unknown>;
+          setCart(
+            Object.fromEntries(
+              Object.entries(parsed).filter(
+                ([, v]) =>
+                  typeof v === "number" &&
+                  Number.isInteger(v) &&
+                  v >= 0 &&
+                  v <= 1000,
+              ),
+            ) as Record<string, number>,
+          );
+        }
         const stored = sessionStorage.getItem(storageKey);
         if (stored) {
           const p = JSON.parse(stored) as OrderRequest;
@@ -140,17 +164,19 @@ function CommerceSession({
           }
         }
       } catch {
-        sessionStorage.removeItem(storageKey);
+        try {
+          sessionStorage.removeItem(storageKey);
+        } catch {
+          /* Storage unavailable. */
+        }
       }
     };
     void restore();
-    if ("serviceWorker" in navigator)
-      void navigator.serviceWorker.register("/sw.js").catch(() => {});
     return () => {
       window.removeEventListener("online", update);
       window.removeEventListener("offline", update);
     };
-  }, [storageKey]);
+  }, [storageKey, cartKey]);
   const money = (n: number) =>
     new Intl.NumberFormat(locale, {
       style: "currency",
@@ -174,10 +200,10 @@ function CommerceSession({
   );
   function quantity(p: LiveProduct, delta: number) {
     if (locked) return;
-    setCart((c) => ({
-      ...c,
-      [p.id]: Math.max(0, Math.min(1000, p.stock, (c[p.id] || 0) + delta)),
-    }));
+    storeCart({
+      ...cart,
+      [p.id]: Math.max(0, Math.min(1000, p.stock, (cart[p.id] || 0) + delta)),
+    });
   }
   function repeat(o: LiveOrder) {
     if (locked) {
@@ -196,7 +222,7 @@ function CommerceSession({
       if (wanted > p.stock || wanted > 1000) unavailable = true;
       next[p.id] = Math.min(1000, p.stock, wanted);
     }
-    setCart(next);
+    storeCart(next);
     setView("catalog");
     setNotice(t("reorderNote") + (unavailable ? " " + t("unavailable") : ""));
   }
@@ -213,19 +239,31 @@ function CommerceSession({
       };
       pending.current = request;
       setLocked(true);
-      sessionStorage.setItem(storageKey, JSON.stringify(request));
+      try {
+        sessionStorage.setItem(storageKey, JSON.stringify(request));
+      } catch {
+        /* Keep the same key in memory. */
+      }
       const response = await liveApi.placeOrder(request);
       pending.current = null;
-      sessionStorage.removeItem(storageKey);
+      try {
+        sessionStorage.removeItem(storageKey);
+      } catch {
+        /* Storage unavailable. */
+      }
       setLocked(false);
-      setCart({});
+      storeCart({});
       setOrderId(response.orderId);
       await refresh();
     } catch (e) {
       setError(true);
       if (e instanceof HttpError && e.status < 500) {
         pending.current = null;
-        sessionStorage.removeItem(storageKey);
+        try {
+          sessionStorage.removeItem(storageKey);
+        } catch {
+          /* Storage unavailable. */
+        }
         setLocked(false);
         await refresh();
         setError(true);
@@ -551,7 +589,7 @@ function CommerceSession({
                     <button
                       className="rb-text-button"
                       disabled={locked}
-                      onClick={() => setCart({})}
+                      onClick={() => storeCart({})}
                     >
                       {t("clear")}
                     </button>

@@ -10,7 +10,8 @@ on production. This repository predates a complete Drizzle migration journal: `0
 was applied separately. Do not replay `0000`/`0001` on an existing database.
 
 Apply `neon-migrations/0003_operations.sql` once in a transaction, commit, then apply
-`neon-migrations/0004_order_catalog_guard.sql` in a second transaction. Deploy code after
+`neon-migrations/0004_order_catalog_guard.sql` in a second transaction, then
+`neon-migrations/0005_delivery_snapshot_guard.sql`. Deploy code after
 these migrations. They preserve all existing tables, IDs, order snapshots, stock and users.
 Verified restaurants are backfilled as APPROVED; other restaurants remain PENDING.
 Category rows are derived from existing catalog values, not demo fixtures.
@@ -73,3 +74,14 @@ Migration and atomic-order checks were executed first on Neon branch
 `rb-operations-validation-20260918`. Test fixtures roll back and are never inserted into
 production catalog data. The main branch upgrade keeps the existing empty catalog empty:
 real products, commercial prices and delivery slots must be entered by an administrator.
+
+## Automated regression checks
+
+GitHub Actions runs TypeScript, ESLint and the Next.js production build, plus a separate
+PostgreSQL 18 job applying every migration to an empty disposable database and executing
+`tests/order-invariants.sql`. It verifies VAT totals, idempotent retries/conflicts, invoice
+eligibility, stock reservation/release, duplicate cancellation, immutable booked slots,
+archived category rejection and company approval enforcement. Fixtures roll back.
+
+A full browser walkthrough and real Google OAuth callback still require a usable browser
+and deployment credentials. Blob integration must be configured before upload testing.
