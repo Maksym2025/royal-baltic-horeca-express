@@ -1,33 +1,642 @@
-'use client';
+"use client";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import {
+  CheckCircle2,
+  Minus,
+  Plus,
+  Search,
+  ShoppingBag,
+  ShieldCheck,
+  LogOut,
+  Truck,
+} from "lucide-react";
+import { useSession, signOut } from "@/lib/auth-client";
+import {
+  liveApi,
+  type LiveCompany,
+  type LiveProduct,
+  type LiveSlot,
+  type LiveOrder,
+  type LiveCategory,
+  type OrderRequest,
+  HttpError,
+} from "@/lib/live-api";
+import { AuthFlow } from "./auth-flow";
+import { AccountPanel } from "./account-panel";
+import { OrderHistory } from "./order-history";
+import { useI18n } from "./i18n-provider";
 
-import {useEffect,useMemo,useState} from 'react';
-import {AuthFlow} from '@/components/auth-flow';
-import {signOut,useSession} from '@/lib/auth-client';
-import {liveApi,type LiveCompany,type LiveOrder,type LiveProduct,type LiveSlot} from '@/lib/live-api';
-
-type Cart=Record<string,number>;
-const eur=(c:number)=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(c/100);
-
-export function LiveCommerce(){
- const {data:session,isPending}=useSession();
- const userId=session?.user?.id;
- const [company,setCompany]=useState<LiveCompany|null>(null),[products,setProducts]=useState<LiveProduct[]>([]),[slots,setSlots]=useState<LiveSlot[]>([]),[orders,setOrders]=useState<LiveOrder[]>([]),[cart,setCart]=useState<Cart>({}),[slot,setSlot]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[orderId,setOrderId]=useState('');
- async function load(){setError('');try{const c=await liveApi.company();setCompany(c.company);if(c.company?.verified){const [p,s,o]=await Promise.all([liveApi.products(),liveApi.slots(),liveApi.orders()]);setProducts(p);setSlots(s);setOrders(o);setSlot(x=>x||s[0]?.id||'')}}catch(e){setError(e instanceof Error?e.message:'Fehler beim Laden.')}}
- useEffect(()=>{if(!userId)return;
- // Loading remote session-scoped data is the external synchronization this effect owns.
- // eslint-disable-next-line react-hooks/set-state-in-effect
- void load();
-},[userId]);
- const totals=useMemo(()=>products.reduce((a,p)=>{const q=cart[p.id]||0;const net=p.priceNetto*q;return {net:a.net+net,tax:a.tax+Math.round(net*p.vatRate/10000)}},{net:0,tax:0}),[products,cart]);
- const count=Object.values(cart).reduce((a,b)=>a+b,0);
- function qty(p:LiveProduct,d:number){setCart(c=>({...c,[p.id]:Math.max(0,Math.min(p.stock,(c[p.id]||0)+d))}))}
- async function order(){if(!slot||!count)return;setBusy(true);setError('');try{const r=await liveApi.placeOrder({idempotencyKey:crypto.randomUUID(),deliverySlotId:slot,paymentMethod:company?.paymentTerms==='INVOICE_7_DAYS'?'invoice':'card_on_delivery',items:Object.entries(cart).filter(([,q])=>q>0).map(([productId,quantity])=>({productId,quantity}))});setOrderId(r.orderId);setCart({});await load()}catch(e){setError(e instanceof Error?e.message:'Bestellung fehlgeschlagen.')}finally{setBusy(false)}}
- if(isPending)return <div className="live-state">Zugang wird geprüft …</div>;
- if(!session?.user)return <section className="live-entry"><AuthFlow onReady={load}/></section>;
- if(!company)return <section className="live-entry"><div className="signed-user"><b>{session.user.name}</b><span>{session.user.email}</span></div><AuthFlow onReady={load}/></section>;
- if(!company.verified)return <section className="live-entry"><h1>B2B-Antrag eingegangen.</h1><p><b>{company.name}</b> ist mit Ihrem Benutzerkonto verknüpft. Nach der Prüfung werden Netto-Preise und Bestellungen freigeschaltet.</p><button onClick={()=>signOut()}>Abmelden</button></section>;
- return <div className="live-commerce"><header><div><small>HORECA EXPRESS · LIVE</small><h1>Ihr Fang für die Küche.</h1><p>{company.name} · Netto-Preise · {company.paymentTerms==='INVOICE_7_DAYS'?'Rechnung 7 Tage':'Kartenzahlung'}</p></div><button onClick={()=>signOut()}>Abmelden</button></header>{error&&<div className="auth-error">{error}</div>}{orderId&&<div className="live-success">Bestellung <b>{orderId}</b> wurde angelegt.</div>}
- <div className="live-layout"><main><div className="live-grid">{products.map(p=><article key={p.id}><div><small>{p.category} · Art. {p.id}</small><h2>{p.title}</h2><p>{p.packageType} · Bestand {p.stock}</p></div><div className="live-buy"><b>{eur(p.priceNetto)}</b><span>netto</span><div><button disabled={!cart[p.id]} onClick={()=>qty(p,-1)}>−</button><strong>{cart[p.id]||0}</strong><button disabled={(cart[p.id]||0)>=p.stock} onClick={()=>qty(p,1)}>+</button></div></div></article>)}</div></main>
- <aside className="live-cart"><h2>Warenkorb</h2><p>{count} Gebinde</p>{Object.entries(cart).filter(([,q])=>q).map(([id,q])=>{const p=products.find(x=>x.id===id)!;return <div className="live-line" key={id}><span>{p.title} × {q}</span><b>{eur(p.priceNetto*q)}</b></div>})}<hr/><div className="live-line"><span>Netto</span><b>{eur(totals.net)}</b></div><div className="live-line"><span>MwSt.</span><b>{eur(totals.tax)}</b></div><div className="live-line total"><span>Brutto</span><b>{eur(totals.net+totals.tax)}</b></div><label>Liefertermin<select value={slot} onChange={e=>setSlot(e.target.value)}>{slots.map(s=><option key={s.id} value={s.id}>{new Date(s.deliveryDate).toLocaleDateString('de-DE')} · {s.window}</option>)}</select></label><button className="live-order" disabled={busy||!count||!slot} onClick={order}>{busy?'Bestellung wird angelegt …':'Verbindlich bestellen'}</button></aside></div>
- <section className="live-orders"><h2>Letzte Bestellungen</h2>{orders.slice(0,5).map(o=><div key={o.id}><b>{o.id.slice(0,8)}</b><span>{new Date(o.createdAt).toLocaleDateString('de-DE')} · {o.status}</span><strong>{eur(o.totalAmountBrutto)}</strong></div>)}</section></div>;
+type View = "catalog" | "account" | "orders";
+export function LiveCommerce({
+  initialView = "catalog",
+}: {
+  initialView?: View;
+}) {
+  const { data: session, isPending } = useSession();
+  const { t } = useI18n();
+  if (isPending)
+    return (
+      <main className="rb-state" role="status">
+        {t("loading")}
+      </main>
+    );
+  if (!session?.user)
+    return <AuthFlow onReady={() => window.location.reload()} />;
+  return (
+    <CommerceSession
+      key={session.user.id}
+      userId={session.user.id}
+      initialView={initialView}
+    />
+  );
+}
+function CommerceSession({
+  userId,
+  initialView,
+}: {
+  userId: string;
+  initialView: View;
+}) {
+  const { t, locale } = useI18n();
+  const router = useRouter();
+  const [view, setView] = useState<View>(initialView);
+  const [company, setCompany] = useState<LiveCompany | null>(null);
+  const [role, setRole] = useState("CUSTOMER");
+  const [products, setProducts] = useState<LiveProduct[]>([]);
+  const [categories, setCategories] = useState<LiveCategory[]>([]);
+  const [slots, setSlots] = useState<LiveSlot[]>([]);
+  const [orders, setOrders] = useState<LiveOrder[]>([]);
+  const [cart, setCart] = useState<Record<string, number>>({});
+  const [slot, setSlot] = useState("");
+  const [payment, setPayment] =
+    useState<OrderRequest["paymentMethod"]>("card_on_delivery");
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [locked, setLocked] = useState(false);
+  const [orderId, setOrderId] = useState("");
+  const [online, setOnline] = useState(true);
+  const pending = useRef<OrderRequest | null>(null);
+  const storageKey = `rb-pending-${userId}`;
+  const refresh = useCallback(async () => {
+    try {
+      const result = await liveApi.company();
+      setError(false);
+      setCompany(result.company);
+      setRole(result.role);
+      if (
+        result.company?.verified &&
+        result.company.approvalStatus === "APPROVED"
+      ) {
+        const [p, c, s, o] = await Promise.all([
+          liveApi.products(),
+          liveApi.categories(),
+          liveApi.slots(),
+          liveApi.orders(),
+        ]);
+        setProducts(p);
+        setCategories(c);
+        setSlots(s);
+        setOrders(o);
+        setSlot((current) =>
+          s.some((x) => x.id === current) ? current : s[0]?.id || "",
+        );
+      }
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  // The initial effect performs network synchronization; state writes follow awaited responses.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void refresh();
+  }, [refresh]);
+  useEffect(() => {
+    const update = () => setOnline(navigator.onLine);
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    const restore = async () => {
+      update();
+      try {
+        const stored = sessionStorage.getItem(storageKey);
+        if (stored) {
+          const p = JSON.parse(stored) as OrderRequest;
+          if (p.idempotencyKey && Array.isArray(p.items)) {
+            pending.current = p;
+            setLocked(true);
+            setCart(
+              Object.fromEntries(p.items.map((i) => [i.productId, i.quantity])),
+            );
+            setSlot(p.deliverySlotId);
+            setPayment(p.paymentMethod);
+          }
+        }
+      } catch {
+        sessionStorage.removeItem(storageKey);
+      }
+    };
+    void restore();
+    if ("serviceWorker" in navigator)
+      void navigator.serviceWorker.register("/sw.js").catch(() => {});
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+    };
+  }, [storageKey]);
+  const money = (n: number) =>
+    new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "EUR",
+    }).format(n / 100);
+  const title = (p: LiveProduct) => p.translations?.[locale]?.title || p.title;
+  const categoryName = (id: string) => {
+    const c = categories.find((c) => c.id === id);
+    return c?.translations?.[locale] || c?.name || id;
+  };
+  const lines = products.filter((p) => (cart[p.id] || 0) > 0);
+  const net = lines.reduce((sum, p) => sum + p.priceNetto * cart[p.id], 0);
+  const vat = lines.reduce(
+    (sum, p) =>
+      sum + Math.round((p.priceNetto * cart[p.id] * p.vatRate) / 10000),
+    0,
+  );
+  const invalidCart = Object.entries(cart).some(
+    ([id, qty]) =>
+      qty > 0 && !products.some((p) => p.id === id && p.stock >= qty),
+  );
+  function quantity(p: LiveProduct, delta: number) {
+    if (locked) return;
+    setCart((c) => ({
+      ...c,
+      [p.id]: Math.max(0, Math.min(1000, p.stock, (c[p.id] || 0) + delta)),
+    }));
+  }
+  function repeat(o: LiveOrder) {
+    if (locked) {
+      setNotice(t("orderLocked"));
+      return;
+    }
+    let unavailable = false;
+    const next = { ...cart };
+    for (const item of o.items) {
+      const p = products.find((p) => p.id === item.productId);
+      if (!p || p.stock === 0) {
+        unavailable = true;
+        continue;
+      }
+      const wanted = (next[p.id] || 0) + item.quantity;
+      if (wanted > p.stock || wanted > 1000) unavailable = true;
+      next[p.id] = Math.min(1000, p.stock, wanted);
+    }
+    setCart(next);
+    setView("catalog");
+    setNotice(t("reorderNote") + (unavailable ? " " + t("unavailable") : ""));
+  }
+  async function placeOrder() {
+    if (busy) return;
+    setBusy(true);
+    setError(false);
+    try {
+      const request = pending.current || {
+        idempotencyKey: crypto.randomUUID(),
+        deliverySlotId: slot,
+        paymentMethod: payment,
+        items: lines.map((p) => ({ productId: p.id, quantity: cart[p.id] })),
+      };
+      pending.current = request;
+      setLocked(true);
+      sessionStorage.setItem(storageKey, JSON.stringify(request));
+      const response = await liveApi.placeOrder(request);
+      pending.current = null;
+      sessionStorage.removeItem(storageKey);
+      setLocked(false);
+      setCart({});
+      setOrderId(response.orderId);
+      await refresh();
+    } catch (e) {
+      setError(true);
+      if (e instanceof HttpError && e.status < 500) {
+        pending.current = null;
+        sessionStorage.removeItem(storageKey);
+        setLocked(false);
+        await refresh();
+        setError(true);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+  const signout = async () => {
+    await signOut();
+    router.replace("/");
+    router.refresh();
+  };
+  if (loading)
+    return (
+      <main className="rb-state" role="status">
+        {t("loading")}
+      </main>
+    );
+  const toolbar = (
+    <div className="rb-customer-bar">
+      <span>
+        <ShieldCheck size={16} />
+        {company?.name || t("account")}
+        {company?.verified && <small>{t("verified")}</small>}
+      </span>
+      <div>
+        {role === "ADMIN" && <Link href="/admin">{t("admin")}</Link>}
+        <button onClick={() => void signout()}>
+          <LogOut size={16} />
+          {t("signOut")}
+        </button>
+      </div>
+    </div>
+  );
+  if (!company)
+    return (
+      <>
+        {toolbar}
+        {error ? (
+          <main className="rb-state">
+            <p role="alert">{t("error")}</p>
+            <button onClick={() => void refresh()}>{t("retry")}</button>
+          </main>
+        ) : (
+          <AuthFlow companyMode onReady={() => void refresh()} />
+        )}
+      </>
+    );
+  const approved = company.verified && company.approvalStatus === "APPROVED";
+  return (
+    <>
+      {toolbar}
+      <main className="rb-main">
+        <nav className="rb-tabs">
+          {(["catalog", "account", "orders"] as const).map((v) => (
+            <button
+              key={v}
+              className={view === v ? "active" : ""}
+              onClick={() => {
+                setView(v);
+                setOrderId("");
+              }}
+            >
+              {t(v)}
+            </button>
+          ))}
+        </nav>
+        {!online && (
+          <p className="rb-warning" role="status">
+            {t("offline")}
+          </p>
+        )}
+        {error && (
+          <div className="rb-error" role="alert">
+            {t("error")}{" "}
+            <button onClick={() => void refresh()}>{t("refresh")}</button>
+          </div>
+        )}
+        {notice && (
+          <div className="rb-notice" role="status">
+            {notice}
+            <button aria-label={t("close")} onClick={() => setNotice("")}>
+              ×
+            </button>
+          </div>
+        )}
+        {!approved && view !== "account" ? (
+          <section className="rb-state">
+            <ShieldCheck size={42} />
+            <h1>
+              {t(
+                company.approvalStatus === "REJECTED"
+                  ? "rejected"
+                  : company.approvalStatus === "DISABLED"
+                    ? "disabled"
+                    : "pending",
+              )}
+            </h1>
+            <p>
+              {t(
+                company.approvalStatus === "PENDING"
+                  ? "pendingText"
+                  : "contactSupport",
+              )}
+            </p>
+            <button className="rb-secondary" onClick={() => void refresh()}>
+              {t("refresh")}
+            </button>
+            <button
+              className="rb-text-button"
+              onClick={() => setView("account")}
+            >
+              {t("account")}
+            </button>
+          </section>
+        ) : view === "account" ? (
+          <AccountPanel company={company} onSave={setCompany} />
+        ) : view === "orders" ? (
+          <OrderHistory orders={orders} onRepeat={repeat} />
+        ) : (
+          <>
+            {orderId && (
+              <section className="rb-success" role="status">
+                <CheckCircle2 size={28} />
+                <div>
+                  <h2>{t("success")}</h2>
+                  <p>
+                    {t("orderNumber")}: <b dir="ltr">{orderId}</b>
+                  </p>
+                </div>
+                <button onClick={() => setView("orders")}>
+                  {t("viewOrders")}
+                </button>
+              </section>
+            )}
+            <div className="rb-section-heading">
+              <div>
+                <span className="rb-eyebrow">{t("catalogIntro")}</span>
+                <h1>{t("welcome")}</h1>
+              </div>
+              <span className="rb-route">
+                <Truck size={20} />
+                {t("delivery")} · Baden-Württemberg
+              </span>
+            </div>
+            <div className="rb-commerce-grid">
+              <section>
+                <label className="rb-search">
+                  <Search size={21} />
+                  <span className="sr-only">{t("search")}</span>
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder={t("search")}
+                  />
+                </label>
+                <div className="rb-categories">
+                  <button
+                    className={!category ? "active" : ""}
+                    onClick={() => setCategory("")}
+                  >
+                    {t("all")}
+                  </button>
+                  {categories.map((c) => (
+                    <button
+                      key={c.id}
+                      className={category === c.id ? "active" : ""}
+                      onClick={() => setCategory(c.id)}
+                    >
+                      {categoryName(c.id)}
+                    </button>
+                  ))}
+                </div>
+                <div className="rb-product-grid">
+                  {products
+                    .filter(
+                      (p) =>
+                        (!category || p.category === category) &&
+                        `${title(p)} ${p.title} ${p.id}`
+                          .toLocaleLowerCase(locale)
+                          .includes(query.toLocaleLowerCase(locale)),
+                    )
+                    .map((p) => (
+                      <article className="rb-product" key={p.id}>
+                        <div className="rb-product-photo">
+                          {p.imageUrl ? (
+                            <Image
+                              src={p.imageUrl}
+                              alt={title(p)}
+                              width={480}
+                              height={320}
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="rb-product-placeholder">
+                              <ShoppingBag size={38} />
+                            </div>
+                          )}
+                          <span
+                            className={`rb-stock ${p.stock < 6 ? "low" : ""}`}
+                          >
+                            {t(
+                              p.stock === 0
+                                ? "out"
+                                : p.stock < 6
+                                  ? "low"
+                                  : "stock",
+                            )}
+                          </span>
+                        </div>
+                        <div className="rb-product-content">
+                          <small>
+                            {categoryName(p.category)} · <bdi>{p.id}</bdi>
+                          </small>
+                          <h2>{title(p)}</h2>
+                          <p>
+                            {p.packageType}
+                            {p.unitWeight ? ` · ${p.unitWeight}` : ""}
+                          </p>
+                          {(p.translations?.[locale]?.description ||
+                            p.description) && (
+                            <p className="rb-muted">
+                              {p.translations?.[locale]?.description ||
+                                p.description}
+                            </p>
+                          )}
+                          {p.origin && (
+                            <small>
+                              {t("origin")}: {p.origin}
+                            </small>
+                          )}
+                          {p.species && (
+                            <small>
+                              {t("species")}: {p.species}
+                            </small>
+                          )}
+                          <div className="rb-product-bottom">
+                            <div>
+                              <strong>{money(p.priceNetto)}</strong>
+                              <small>
+                                {t("net")} · {p.vatRate / 100}% {t("vat")}
+                              </small>
+                            </div>
+                            <div className="rb-quantity">
+                              <button
+                                aria-label={`${t("remove")} ${title(p)}`}
+                                disabled={locked || !cart[p.id]}
+                                onClick={() => quantity(p, -1)}
+                              >
+                                <Minus size={17} />
+                              </button>
+                              <output aria-label={t("quantity")}>
+                                {cart[p.id] || 0}
+                              </output>
+                              <button
+                                aria-label={`${t("add")} ${title(p)}`}
+                                disabled={
+                                  locked ||
+                                  p.stock < 1 ||
+                                  (cart[p.id] || 0) >= p.stock
+                                }
+                                onClick={() => quantity(p, 1)}
+                              >
+                                <Plus size={17} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                </div>
+                {!products.length && (
+                  <p className="rb-empty">{t("noProducts")}</p>
+                )}
+                {products.length > 0 &&
+                  !products.some(
+                    (p) =>
+                      (!category || p.category === category) &&
+                      `${title(p)} ${p.title} ${p.id}`
+                        .toLocaleLowerCase(locale)
+                        .includes(query.toLocaleLowerCase(locale)),
+                  ) && <p className="rb-empty">{t("noMatches")}</p>}
+              </section>
+              <aside className="rb-cart" id="cart">
+                <header>
+                  <ShoppingBag size={21} />
+                  <h2>{t("cart")}</h2>
+                  <span>{Object.values(cart).reduce((a, b) => a + b, 0)}</span>
+                </header>
+                {!lines.length ? (
+                  <p className="rb-empty">{t("emptyCart")}</p>
+                ) : (
+                  <>
+                    <div className="rb-cart-lines">
+                      {lines.map((p) => (
+                        <div key={p.id}>
+                          <strong>{title(p)}</strong>
+                          <small>{p.packageType}</small>
+                          <div>
+                            <div className="rb-quantity">
+                              <button
+                                aria-label={t("remove")}
+                                disabled={locked}
+                                onClick={() => quantity(p, -1)}
+                              >
+                                <Minus size={15} />
+                              </button>
+                              <output>{cart[p.id]}</output>
+                              <button
+                                aria-label={t("add")}
+                                disabled={locked || cart[p.id] >= p.stock}
+                                onClick={() => quantity(p, 1)}
+                              >
+                                <Plus size={15} />
+                              </button>
+                            </div>
+                            <b>{money(p.priceNetto * cart[p.id])}</b>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      className="rb-text-button"
+                      disabled={locked}
+                      onClick={() => setCart({})}
+                    >
+                      {t("clear")}
+                    </button>
+                  </>
+                )}
+                {invalidCart && <p className="rb-error">{t("unavailable")}</p>}
+                {locked && <p className="rb-warning">{t("orderLocked")}</p>}
+                <label>
+                  {t("deliverySlot")}
+                  <select
+                    value={slot}
+                    disabled={locked}
+                    onChange={(e) => setSlot(e.target.value)}
+                  >
+                    <option value="">{t("selectSlot")}</option>
+                    {slots.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {new Date(
+                          `${s.deliveryDate}T12:00:00`,
+                        ).toLocaleDateString(locale)}{" "}
+                        · {s.window}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {!slots.length && <p className="rb-muted">{t("noSlots")}</p>}
+                <label>
+                  {t("payment")}
+                  <select
+                    value={payment}
+                    disabled={locked}
+                    onChange={(e) =>
+                      setPayment(
+                        e.target.value as OrderRequest["paymentMethod"],
+                      )
+                    }
+                  >
+                    {company.paymentTerms === "INVOICE_7_DAYS" && (
+                      <option value="invoice">{t("invoice")}</option>
+                    )}
+                    <option value="card_on_delivery">{t("card")}</option>
+                    <option value="advance">{t("advance")}</option>
+                  </select>
+                </label>
+                <div className="rb-totals">
+                  <span>
+                    {t("net")}
+                    <b>{money(net)}</b>
+                  </span>
+                  <span>
+                    {t("vat")}
+                    <b>{money(vat)}</b>
+                  </span>
+                  <span>
+                    {t("gross")}
+                    <b>{money(net + vat)}</b>
+                  </span>
+                </div>
+                <p className="rb-muted">{t("totalsNote")}</p>
+                <button
+                  className="rb-primary"
+                  disabled={
+                    busy ||
+                    !online ||
+                    (!locked && (!lines.length || !slot || invalidCart))
+                  }
+                  onClick={() => void placeOrder()}
+                >
+                  {t(busy ? "sending" : locked ? "retry" : "placeOrder")}
+                </button>
+                <p className="rb-delivery-address">
+                  {t("deliveryTo")}
+                  <br />
+                  {company.address}
+                </p>
+              </aside>
+            </div>
+            <a href="#cart" className="rb-mobile-cart">
+              <ShoppingBag size={20} />
+              {t("cart")} · {Object.values(cart).reduce((a, b) => a + b, 0)}
+              <b>{money(net + vat)}</b>
+            </a>
+          </>
+        )}
+      </main>
+    </>
+  );
 }

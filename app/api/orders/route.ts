@@ -1,8 +1,114 @@
-import {eq,desc,sql,inArray} from 'drizzle-orm';
-import {z} from 'zod';
-import {orders,orderItems} from '@/db/schema';
-import {database,apiError,ApiError} from '@/lib/server/db';
-import {requireRestaurant,assertSameOrigin} from '@/lib/server/auth';
-const requestSchema=z.object({idempotencyKey:z.string().uuid(),deliverySlotId:z.string().uuid(),paymentMethod:z.enum(['invoice','card_on_delivery','advance']),items:z.array(z.object({productId:z.string().min(1).max(60),quantity:z.number().int().min(1).max(1000)}).strict()).min(1).max(100)}).strict();
-export async function GET(req:Request){try{const r=await requireRestaurant(req);const db=database();const records=await db.select().from(orders).where(eq(orders.restaurantId,r.id)).orderBy(desc(orders.createdAt)).limit(100);const items=records.length?await db.select().from(orderItems).where(inArray(orderItems.orderId,records.map(o=>o.id))):[];return Response.json(records.map(o=>({...o,items:items.filter(i=>i.orderId===o.id)})),{headers:{'Cache-Control':'private, no-store'}})}catch(e){return apiError(e)}}
-export async function POST(req:Request){try{assertSameOrigin(req);const r=await requireRestaurant(req);const raw=await req.text();if(raw.length>20000)throw new ApiError(413,'Anfrage zu groß.');let parsed:unknown;try{parsed=JSON.parse(raw)}catch{throw new ApiError(400,'Ungültiges JSON.')}const valid=requestSchema.safeParse(parsed);if(!valid.success)throw new ApiError(400,'Ungültige Bestelldaten.');const body=valid.data;if(new Set(body.items.map(i=>i.productId)).size!==body.items.length)throw new ApiError(400,'Doppelte Artikel.');if(body.paymentMethod==='invoice'&&r.paymentTerms!=='INVOICE_7_DAYS')throw new ApiError(403,'Rechnung ist für diesen Betrieb nicht freigeschaltet.');const canonical=JSON.stringify({slot:body.deliverySlotId,payment:body.paymentMethod,items:[...body.items].sort((a,b)=>a.productId.localeCompare(b.productId))});const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical));const hash=Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');const result=await database().execute(sql`select rb_place_order(${r.id}::uuid,${body.idempotencyKey}::uuid,${hash},${body.deliverySlotId}::uuid,${body.paymentMethod},${JSON.stringify(body.items)}::jsonb) as order_id`);return Response.json({orderId:result.rows[0].order_id},{status:201,headers:{'Cache-Control':'no-store'}})}catch(e){return apiError(e)}}
+import { eq, desc, sql, inArray } from "drizzle-orm";
+import { z } from "zod";
+import { orders, orderItems, payments } from "@/db/schema";
+import { database, apiError, ApiError } from "@/lib/server/db";
+import { requireRestaurant, assertSameOrigin } from "@/lib/server/auth";
+const requestSchema = z
+  .object({
+    idempotencyKey: z.string().uuid(),
+    deliverySlotId: z.string().uuid(),
+    paymentMethod: z.enum(["invoice", "card_on_delivery", "advance"]),
+    items: z
+      .array(
+        z
+          .object({
+            productId: z.string().min(1).max(60),
+            quantity: z.number().int().min(1).max(1000),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(100),
+  })
+  .strict();
+export async function GET(req: Request) {
+  try {
+    const r = await requireRestaurant(req);
+    const db = database();
+    const records = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.restaurantId, r.id))
+      .orderBy(desc(orders.createdAt))
+      .limit(100);
+    const items = records.length
+      ? await db
+          .select()
+          .from(orderItems)
+          .where(
+            inArray(
+              orderItems.orderId,
+              records.map((o) => o.id),
+            ),
+          )
+      : [];
+    const paymentRows = records.length
+      ? await db
+          .select({ orderId: payments.orderId, status: payments.status })
+          .from(payments)
+          .where(
+            inArray(
+              payments.orderId,
+              records.map((o) => o.id),
+            ),
+          )
+      : [];
+    return Response.json(
+      records.map((o) => ({
+        ...o,
+        payments: paymentRows.filter((p) => p.orderId === o.id),
+        items: items.filter((i) => i.orderId === o.id),
+      })),
+      { headers: { "Cache-Control": "private, no-store" } },
+    );
+  } catch (e) {
+    return apiError(e);
+  }
+}
+export async function POST(req: Request) {
+  try {
+    assertSameOrigin(req);
+    const r = await requireRestaurant(req);
+    const raw = await req.text();
+    if (raw.length > 20000) throw new ApiError(413, "Anfrage zu groß.");
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      throw new ApiError(400, "Ungültiges JSON.");
+    }
+    const valid = requestSchema.safeParse(parsed);
+    if (!valid.success) throw new ApiError(400, "Ungültige Bestelldaten.");
+    const body = valid.data;
+    if (new Set(body.items.map((i) => i.productId)).size !== body.items.length)
+      throw new ApiError(400, "Doppelte Artikel.");
+    if (body.paymentMethod === "invoice" && r.paymentTerms !== "INVOICE_7_DAYS")
+      throw new ApiError(
+        403,
+        "Rechnung ist für diesen Betrieb nicht freigeschaltet.",
+      );
+    const canonical = JSON.stringify({
+      slot: body.deliverySlotId,
+      payment: body.paymentMethod,
+      items: [...body.items].sort((a, b) =>
+        a.productId.localeCompare(b.productId),
+      ),
+    });
+    const digest = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(canonical),
+    );
+    const hash = Array.from(new Uint8Array(digest))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    const result = await database().execute(
+      sql`select rb_place_order(${r.id}::uuid,${body.idempotencyKey}::uuid,${hash},${body.deliverySlotId}::uuid,${body.paymentMethod},${JSON.stringify(body.items)}::jsonb) as order_id`,
+    );
+    return Response.json(
+      { orderId: result.rows[0].order_id },
+      { status: 201, headers: { "Cache-Control": "no-store" } },
+    );
+  } catch (e) {
+    return apiError(e);
+  }
+}
