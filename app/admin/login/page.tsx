@@ -23,5 +23,9 @@ export default async function AdminLoginPage({
     if (!(e instanceof ApiError) || ![401, 403].includes(e.status)) throw e;
   }
   if (isAdmin) redirect("/admin");
-  return <AdminLogin notice={reason === "forbidden" ? notices.forbidden : undefined} />;
+  return (
+    <AdminLogin
+      notice={reason === "forbidden" ? notices.forbidden : undefined}
+    />
+  );
 }

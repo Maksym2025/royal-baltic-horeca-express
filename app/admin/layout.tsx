@@ -13,5 +13,9 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div lang="en" dir="ltr">{children}</div>;
+  return (
+    <div lang="en" dir="ltr">
+      {children}
+    </div>
+  );
 }

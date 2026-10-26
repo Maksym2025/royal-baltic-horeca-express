@@ -26,6 +26,7 @@ import {
   type LiveOrder,
   type CatalogImage,
 } from "@/lib/live-api";
+import { productStorage, productDescription } from "@/lib/product-storage";
 import { statusLabels, transitions } from "@/lib/order-status";
 import { locales, languageNames } from "@/lib/i18n/dictionaries";
 
@@ -87,7 +88,7 @@ async function write(resource: Tab, body: unknown, creating = false) {
   });
 }
 export function AdminConsole() {
-  const [tab, setTab] = useState<Tab>("dashboard");
+  const [tab, setTab] = useState<Tab>("orders");
   const [revision, setRevision] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState("");
@@ -105,13 +106,20 @@ export function AdminConsole() {
       window.location.replace("/admin/login");
     } catch {
       setSignOutError("Unable to connect. Please try again.");
-    } finally { setSigningOut(false); }
+    } finally {
+      setSigningOut(false);
+    }
   }
+
   return (
     <main className="rb-admin" dir="ltr">
       <aside className="rb-admin-nav">
-        <span className="rb-eyebrow">OPERATIONS</span>
-        <h1>Royal Baltic</h1>
+        <Link href="/" className="rb-admin-brand">
+          <Image src="/design/mark.png" alt="" width={54} height={32} />
+          <span>
+            ROYAL BALTIC<small>HORECA EXPRESS</small>
+          </span>
+        </Link>
         <nav>
           {tabs.map(([id, label, Icon]) => (
             <button
@@ -126,20 +134,11 @@ export function AdminConsole() {
         </nav>
         <div className="rb-admin-foot">
           <Link href="/">Customer site</Link>
-          <button
-            type="button"
-            disabled={signingOut}
-            onClick={leave}
-          >
+          <button type="button" disabled={signingOut} onClick={leave}>
             {signingOut ? "Signing out…" : "Sign out"}
           </button>
           {signOutError && <p role="alert">{signOutError}</p>}
         </div>
-        <small>
-          HoReCa procurement
-          <br />
-          Europe / Berlin
-        </small>
       </aside>
       <section className="rb-admin-content">
         <header className="rb-section-heading">
@@ -300,7 +299,8 @@ function productBody(p: LiveProduct) {
     expectedStock: p.stock,
     title: p.title,
     category: p.category,
-    description: p.description,
+    description: productDescription(p.description),
+    storageCondition: productStorage(p),
     origin: p.origin,
     species: p.species,
     unitWeight: p.unitWeight,
@@ -477,6 +477,7 @@ function ProductEditor({
         title: get("title"),
         category: get("category"),
         description: get("description") || null,
+        storageCondition: get("storageCondition"),
         origin: get("origin") || null,
         species: get("species") || null,
         unitWeight: get("unitWeight") || null,
@@ -543,6 +544,17 @@ function ProductEditor({
           </select>
         </label>
         <label>
+          Storage condition
+          <select
+            name="storageCondition"
+            defaultValue={product ? productStorage(product) : "unspecified"}
+          >
+            <option value="unspecified">Not specified</option>
+            <option value="chilled">Chilled</option>
+            <option value="frozen">Frozen</option>
+          </select>
+        </label>
+        <label>
           Packaging
           <input
             name="packageType"
@@ -604,7 +616,7 @@ function ProductEditor({
         Description
         <textarea
           name="description"
-          defaultValue={product?.description || ""}
+          defaultValue={productDescription(product?.description)}
           maxLength={1000}
         />
       </label>
@@ -817,27 +829,96 @@ function OrdersManager({
   busy: boolean;
 }) {
   const [filter, setFilter] = useState("");
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState("");
+  const filtered = orders.filter(
+    (r) =>
+      (!filter || r.order.status === filter) &&
+      `${r.order.id} ${r.company}`.toLowerCase().includes(query.toLowerCase()),
+  );
+  const r = filtered.find((r) => r.order.id === selected) || filtered[0];
   return (
     <>
-      <label>
-        Status filter
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="">All statuses</option>
-          {Object.entries(statusLabels).map(([v, label]) => (
-            <option key={v} value={v}>
-              {label}
-              {v === "processing" ? " (legacy)" : ""}
-            </option>
+      <div className="rb-status-filters" aria-label="Order status">
+        <button
+          className={!filter ? "active" : ""}
+          onClick={() => setFilter("")}
+        >
+          All · {orders.length}
+        </button>
+        {Object.entries(statusLabels)
+          .filter(
+            ([id]) =>
+              id !== "processing" || orders.some((r) => r.order.status === id),
+          )
+          .map(([id, label]) => (
+            <button
+              key={id}
+              className={filter === id ? "active" : ""}
+              onClick={() => setFilter(id)}
+            >
+              {label} · {orders.filter((r) => r.order.status === id).length}
+            </button>
           ))}
-        </select>
+      </div>
+      <label className="rb-admin-search">
+        <span className="sr-only">Search order number or company</span>
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search order number or company"
+        />
       </label>
-      <p className="rb-muted">
-        Latest 500 orders. Amounts and line items are stored order snapshots.
-      </p>
-      {orders
-        .filter((r) => !filter || r.order.status === filter)
-        .map((r) => (
-          <article className="rb-order" key={r.order.id}>
+      <div className="rb-orders-workspace">
+        <div className="rb-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Company</th>
+                <th>Delivery</th>
+                <th>Total</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((row) => (
+                <tr
+                  key={row.order.id}
+                  className={
+                    r?.order.id === row.order.id ? "rb-selected-row" : ""
+                  }
+                >
+                  <td>
+                    <button
+                      className="rb-order-select"
+                      aria-pressed={r?.order.id === row.order.id}
+                      onClick={() => setSelected(row.order.id)}
+                    >
+                      {row.order.id.slice(0, 8)}
+                    </button>
+                  </td>
+                  <td>{row.company}</td>
+                  <td>{date(row.order.deliveryDate)}</td>
+                  <td>{money(row.order.totalAmountBrutto)}</td>
+                  <td>
+                    <span className="rb-badge">
+                      {statusLabels[row.order.status]}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {!filtered.length && (
+            <p className="rb-empty">
+              {orders.length ? "No matching orders." : "No orders yet."}
+            </p>
+          )}
+        </div>
+        {r && (
+          <article className="rb-order rb-order-detail" key={r.order.id}>
             <header>
               <div>
                 <strong>{r.company}</strong>
@@ -850,35 +931,22 @@ function OrdersManager({
               <span className="rb-badge">{statusLabels[r.order.status]}</span>
               <strong>{money(r.order.totalAmountBrutto)}</strong>
             </header>
-            <details>
+            <details open>
               <summary>Items, delivery & payment</summary>
-              <div className="rb-table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Product / SKU</th>
-                      <th>Quantity</th>
-                      <th>Net</th>
-                      <th>VAT</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {r.items.map((i) => (
-                      <tr key={i.productId}>
-                        <td>
-                          {i.productTitle}
-                          <small>
-                            {i.productId} · {i.packageType}
-                          </small>
-                        </td>
-                        <td>{i.quantity}</td>
-                        <td>{money(i.priceAtMoment * i.quantity)}</td>
-                        <td>{i.vatRate / 100}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <ul className="rb-order-item-list">
+                {r.items.map((i) => (
+                  <li key={i.productId}>
+                    <div>
+                      <strong>{i.productTitle}</strong>
+                      <small>
+                        {i.quantity} × {i.packageType} · {i.productId}
+                      </small>
+                      <small>VAT {i.vatRate / 100}%</small>
+                    </div>
+                    <b>{money(i.priceAtMoment * i.quantity)}</b>
+                  </li>
+                ))}
+              </ul>
               <p>{r.order.deliveryAddress}</p>
               <p>
                 Payment:{" "}
@@ -926,11 +994,12 @@ function OrdersManager({
               ))}
             </div>
           </article>
-        ))}
-      {!orders.length && <p className="rb-empty">No orders.</p>}
+        )}
+      </div>
     </>
   );
 }
+
 function CustomerManager({
   customers,
   save,

@@ -21,6 +21,7 @@ export type CatalogImage = {
   size: number;
 };
 export type LiveProduct = {
+  storageCondition?: import("./product-storage").StorageCondition;
   id: string;
   title: string;
   category: string;

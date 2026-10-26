@@ -24,12 +24,14 @@ import {
   type OrderRequest,
   HttpError,
 } from "@/lib/live-api";
+import { readShopCart } from "@/lib/shop-cart";
+import { designCopy } from "./design-copy";
 import { AuthFlow } from "./auth-flow";
 import { AccountPanel } from "./account-panel";
 import { OrderHistory } from "./order-history";
 import { useI18n } from "./i18n-provider";
 
-type View = "catalog" | "account" | "orders";
+type View = "catalog" | "account" | "orders" | "checkout";
 export function LiveCommerce({
   initialView = "catalog",
 }: {
@@ -62,7 +64,7 @@ function CommerceSession({
 }) {
   const { t, locale } = useI18n();
   const router = useRouter();
-  const [view, setView] = useState<View>(initialView);
+  const view = initialView;
   const [company, setCompany] = useState<LiveCompany | null>(null);
   const [role, setRole] = useState("CUSTOMER");
   const [products, setProducts] = useState<LiveProduct[]>([]);
@@ -135,21 +137,7 @@ function CommerceSession({
     const restore = async () => {
       update();
       try {
-        const savedCart = sessionStorage.getItem(cartKey);
-        if (savedCart) {
-          const parsed = JSON.parse(savedCart) as Record<string, unknown>;
-          setCart(
-            Object.fromEntries(
-              Object.entries(parsed).filter(
-                ([, v]) =>
-                  typeof v === "number" &&
-                  Number.isInteger(v) &&
-                  v >= 0 &&
-                  v <= 1000,
-              ),
-            ) as Record<string, number>,
-          );
-        }
+        setCart(readShopCart(userId));
         const stored = sessionStorage.getItem(storageKey);
         if (stored) {
           const p = JSON.parse(stored) as OrderRequest;
@@ -176,7 +164,7 @@ function CommerceSession({
       window.removeEventListener("online", update);
       window.removeEventListener("offline", update);
     };
-  }, [storageKey, cartKey]);
+  }, [storageKey, cartKey, userId]);
   const money = (n: number) =>
     new Intl.NumberFormat(locale, {
       style: "currency",
@@ -223,7 +211,7 @@ function CommerceSession({
       next[p.id] = Math.min(1000, p.stock, wanted);
     }
     storeCart(next);
-    setView("catalog");
+    router.push("/live");
     setNotice(t("reorderNote") + (unavailable ? " " + t("unavailable") : ""));
   }
   async function placeOrder() {
@@ -317,19 +305,23 @@ function CommerceSession({
   return (
     <>
       {toolbar}
-      <main className="rb-main">
+      <main className={`rb-main${view === "checkout" ? " rb-checkout" : ""}`}>
         <nav className="rb-tabs">
           {(["catalog", "account", "orders"] as const).map((v) => (
-            <button
+            <Link
               key={v}
               className={view === v ? "active" : ""}
-              onClick={() => {
-                setView(v);
-                setOrderId("");
-              }}
+              href={
+                v === "catalog"
+                  ? "/live"
+                  : v === "orders"
+                    ? "/account?view=orders"
+                    : "/account"
+              }
+              aria-current={view === v ? "page" : undefined}
             >
               {t(v)}
-            </button>
+            </Link>
           ))}
         </nav>
         {!online && (
@@ -375,7 +367,7 @@ function CommerceSession({
             </button>
             <button
               className="rb-text-button"
-              onClick={() => setView("account")}
+              onClick={() => router.push("/account")}
             >
               {t("account")}
             </button>
@@ -395,7 +387,7 @@ function CommerceSession({
                     {t("orderNumber")}: <b dir="ltr">{orderId}</b>
                   </p>
                 </div>
-                <button onClick={() => setView("orders")}>
+                <button onClick={() => router.push("/account?view=orders")}>
                   {t("viewOrders")}
                 </button>
               </section>
@@ -403,13 +395,22 @@ function CommerceSession({
             <div className="rb-section-heading">
               <div>
                 <span className="rb-eyebrow">{t("catalogIntro")}</span>
-                <h1>{t("welcome")}</h1>
+                <h1>
+                  {view === "checkout"
+                    ? designCopy[locale].checkout
+                    : t("catalog")}
+                </h1>
               </div>
               <span className="rb-route">
                 <Truck size={20} />
-                {t("delivery")} · Baden-Württemberg
+                {t("delivery")} · France
               </span>
             </div>
+            {view === "checkout" && (
+              <Link href="/live" className="rb-text-button">
+                ← {designCopy[locale].back}
+              </Link>
+            )}
             <div className="rb-commerce-grid">
               <section>
                 <label className="rb-search">
@@ -667,11 +668,11 @@ function CommerceSession({
                 </p>
               </aside>
             </div>
-            <a href="#cart" className="rb-mobile-cart">
+            <Link href="/checkout" className="rb-mobile-cart">
               <ShoppingBag size={20} />
               {t("cart")} · {Object.values(cart).reduce((a, b) => a + b, 0)}
               <b>{money(net + vat)}</b>
-            </a>
+            </Link>
           </>
         )}
       </main>

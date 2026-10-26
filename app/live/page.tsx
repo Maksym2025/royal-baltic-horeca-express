@@ -1,3 +1,8 @@
-import {LiveCommerce} from '@/components/live-commerce';
-
-export default function LivePage(){return <LiveCommerce/>;}
+import { Storefront } from "@/components/storefront";
+export default function LivePage() {
+  return (
+    <main className="rb-main rb-store-page">
+      <Storefront />
+    </main>
+  );
+}

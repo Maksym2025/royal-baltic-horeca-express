@@ -2,29 +2,40 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { signIn, signUp } from "@/lib/auth-client";
 import { useI18n } from "./i18n-provider";
-import { ShieldCheck, ArrowRight } from "lucide-react";
+import { designCopy } from "./design-copy";
+import { ShieldCheck, ArrowRight, Eye, EyeOff } from "lucide-react";
 export function AuthFlow({
   onReady,
   companyMode = false,
+  initialSignup = false,
 }: {
   onReady?: () => void;
   companyMode?: boolean;
+  initialSignup?: boolean;
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const c = designCopy[locale];
   const [googleEnabled, setGoogleEnabled] = useState(false);
   useEffect(() => {
     let active = true;
     fetch("/api/auth-capabilities", { cache: "no-store" })
-      .then(r => r.ok ? r.json() : { google: false })
-      .then(data => { if (active) setGoogleEnabled(data.google === true); })
+      .then((r) => (r.ok ? r.json() : { google: false }))
+      .then((data) => {
+        if (active) setGoogleEnabled(data.google === true);
+      })
       .catch(() => {});
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, []);
-  const [signup, setSignup] = useState(false);
+
+  const [visible, setVisible] = useState(false);
+  const [signup, setSignup] = useState(initialSignup);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (busy) return;
     setBusy(true);
     setError("");
     const data = new FormData(e.currentTarget);
@@ -61,7 +72,10 @@ export function AuthFlow({
     setBusy(true);
     setError("");
     try {
-      const r = await signIn.social({ provider: "google", callbackURL: "/live" });
+      const r = await signIn.social({
+        provider: "google",
+        callbackURL: "/live",
+      });
       if (r.error) throw new Error();
     } catch {
       setError(t("authError"));
@@ -142,18 +156,31 @@ export function AuthFlow({
                   required
                 />
               </label>
-              <label>
-                {t("password")}
-                <input
-                  name="password"
-                  type="password"
-                  autoComplete={signup ? "new-password" : "current-password"}
-                  minLength={8}
-                  maxLength={128}
-                  required
-                />
-                <small>{t("passwordHint")}</small>
-              </label>
+              <div className="rb-password-group">
+                <label htmlFor="customer-password">{t("password")}</label>
+                <span className="rb-password-field">
+                  <input
+                    id="customer-password"
+                    name="password"
+                    aria-describedby="customer-password-hint"
+                    type={visible ? "text" : "password"}
+                    autoComplete={signup ? "new-password" : "current-password"}
+                    minLength={8}
+                    maxLength={128}
+                    required
+                  />
+                  <button
+                    type="button"
+                    aria-label={visible ? c.hide : c.show}
+                    aria-pressed={visible}
+                    aria-controls="customer-password"
+                    onClick={() => setVisible(!visible)}
+                  >
+                    {visible ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </span>
+                <small id="customer-password-hint">{t("passwordHint")}</small>
+              </div>
             </>
           )}
           {error && (
