@@ -1,5 +1,5 @@
 "use client";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { signIn, signUp } from "@/lib/auth-client";
 import { useI18n } from "./i18n-provider";
 import { ShieldCheck, ArrowRight } from "lucide-react";
@@ -11,6 +11,15 @@ export function AuthFlow({
   companyMode?: boolean;
 }) {
   const { t } = useI18n();
+  const [googleEnabled, setGoogleEnabled] = useState(false);
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth-capabilities", { cache: "no-store" })
+      .then(r => r.ok ? r.json() : { google: false })
+      .then(data => { if (active) setGoogleEnabled(data.google === true); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
   const [signup, setSignup] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -52,7 +61,7 @@ export function AuthFlow({
     setBusy(true);
     setError("");
     try {
-      const r = await signIn.social({ provider: "google", callbackURL: "/" });
+      const r = await signIn.social({ provider: "google", callbackURL: "/live" });
       if (r.error) throw new Error();
     } catch {
       setError(t("authError"));
@@ -74,7 +83,7 @@ export function AuthFlow({
         <h2>
           {t(companyMode ? "registerCompany" : signup ? "signUp" : "signIn")}
         </h2>
-        {!companyMode && (
+        {!companyMode && googleEnabled && (
           <>
             <button
               className="rb-google"
