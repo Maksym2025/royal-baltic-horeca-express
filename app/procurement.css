@@ -1236,3 +1236,25 @@ body {
 .rb-account p {
   margin: 10px 0;
 }
+
+/* Auth owns its spacing; do not inherit the demo main element's padding. */
+main.rb-auth { padding: 0; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+.rb-auth-story, .rb-auth-form { min-width: 0; }
+.rb-auth input { font-size: 16px; min-height: 48px; }
+.rb-auth label { font-size: 14px; }
+.rb-auth .rb-primary, .rb-auth .rb-google, .rb-auth .rb-text-button { min-height: 48px; font-size: 16px; }
+.rb-auth-form label small { font-size: 12px; }
+@media (max-width: 700px) {
+ main.rb-auth { margin: 16px 12px; min-height: 0; }
+ .rb-auth-story { padding: 22px 20px; }
+ .rb-auth-story h1 { font-size: 28px; margin: 12px 0 8px; }
+ .rb-auth-story > div { display: none; }
+ .rb-auth-story:after { width: 110px; height: 80px; }
+ .rb-auth-form { padding: 24px 20px; }
+ .rb-auth-form h2 { margin-bottom: 20px; }
+ .rb-header { gap: 12px; }
+ .rb-brand { font-size: 16px; letter-spacing: 1px; }
+ .rb-language select { max-width: 98px; }
+ .rb-language > svg { display: none; }
+ .rb-header nav a { min-height: 44px; font-size: 14px; }
+}
