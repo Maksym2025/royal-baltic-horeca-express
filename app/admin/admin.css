@@ -1,0 +1,63 @@
+/* Administration keeps Royal Baltic's navy/gold identity and existing typeface. */
+.rb-adminlogin {
+  --admin-bg: #0a1728;
+  --admin-text: #f0f4f8;
+  --admin-muted: #a3b3c5;
+  --admin-accent: #d6b05c;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  min-height: 100dvh;
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+.rb-adminlogin-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 48px;
+  padding: 40px 48px;
+  background: linear-gradient(180deg, rgba(10,23,40,.6), rgba(10,23,40,.92)), url("/images/horeca-hero.webp") 16% center / cover no-repeat;
+}
+.rb-adminlogin-logo { display: flex; align-items: center; gap: 12px; font: 15px/1.1 Georgia, serif; letter-spacing: .16em; }
+.rb-adminlogin-logo small { display: block; margin-top: 8px; font: 10px/1.4 Arial, sans-serif; letter-spacing: .2em; color: var(--admin-accent); }
+.rb-adminlogin-brand p { margin: 12px 0 0; max-width: 16ch; font-size: 36px; line-height: 1.15; }
+.rb-adminlogin-panel { display: flex; align-items: center; justify-content: center; min-width: 0; padding: 48px 24px; }
+.rb-adminlogin-form { width: 100%; max-width: 400px; display: flex; flex-direction: column; }
+.rb-adminlogin-form h1 { margin: 0 0 12px; font-size: clamp(26px, 4vw, 34px); line-height: 1.15; letter-spacing: -.5px; }
+.rb-adminlogin-lead { margin: 0 0 28px; color: var(--admin-muted); }
+.rb-adminlogin-form label { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
+.rb-adminlogin-form input { width: 100%; min-width: 0; min-height: 52px; margin-bottom: 20px; padding: 0 16px; border-radius: 12px; border: 1px solid #6b8099; background: var(--admin-bg); color: var(--admin-text); font-size: 16px; }
+.rb-adminlogin input:focus-visible, .rb-adminlogin button:focus-visible, .rb-adminlogin a:focus-visible { outline: 3px solid var(--admin-accent); outline-offset: 3px; }
+.rb-adminlogin-form button { min-height: 52px; margin-top: 4px; border: 0; border-radius: 12px; background: var(--admin-accent); color: var(--admin-bg); font: inherit; font-weight: 600; cursor: pointer; }
+.rb-adminlogin-form button:disabled { opacity: .6; cursor: not-allowed; }
+.rb-adminlogin-form button:active:not(:disabled) { transform: scale(.98); }
+.rb-adminlogin-password { position: relative; margin-bottom: 20px; }
+.rb-adminlogin-password input { margin: 0; padding-right: 64px; }
+.rb-adminlogin-form .rb-adminlogin-reveal { position: absolute; inset: 4px 4px auto auto; width: 44px; min-height: 44px; margin: 0; display: grid; place-items: center; background: transparent; color: var(--admin-muted); border-radius: 8px; }
+.rb-adminlogin-form .rb-adminlogin-switch { background: transparent; color: var(--admin-accent); text-align: left; font-size: 14px; }
+.rb-adminlogin-error { margin: 0 0 20px; padding: 12px 16px; border-radius: 12px; border: 1px solid #a46464; background: #2a1618; color: #f3b5b5; font-size: 14px; overflow-wrap: anywhere; }
+.rb-adminlogin-hint { margin: 20px 0 8px; color: var(--admin-muted); font-size: 14px; }
+.rb-adminlogin-back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--admin-accent); font-size: 14px; font-weight: 600; text-decoration: none; }
+/* Reset the customer shell's global main sizing after removing its header. */
+.rb-admin { width: 100%; max-width: none; min-height: 100dvh; margin: 0; padding: 0; }
+.rb-admin-nav { display: flex; flex-direction: column; }
+.rb-admin-foot { display: grid; gap: 4px; margin-top: auto; padding-top: 16px; border-top: 1px solid #334155; }
+.rb-admin-foot a, .rb-admin-foot button { display: flex; align-items: center; min-height: 44px; padding: 0 4px; border: 0; background: none; color: #d6b05c; font: inherit; font-size: 14px; font-weight: 600; text-align: left; text-decoration: none; cursor: pointer; }
+.rb-admin-foot button:disabled { opacity: .6; cursor: not-allowed; }
+.rb-admin-foot p { color: #f3b5b5; font-size: 14px; }
+@media (max-width: 860px) {
+  .rb-adminlogin, html.rb-phone .rb-adminlogin { grid-template-columns: 1fr; align-content: start; }
+  .rb-adminlogin-brand { min-height: 0; gap: 24px; padding: 24px; }
+  .rb-adminlogin-brand p { max-width: 24ch; font-size: 24px; }
+  .rb-adminlogin-brand .rb-eyebrow { display: none; }
+  .rb-adminlogin-panel { padding: 32px 24px max(24px, env(safe-area-inset-bottom)); }
+  .rb-admin-foot { margin-top: 24px; }
+}
+html.rb-phone .rb-adminlogin { grid-template-columns: 1fr; align-content: start; }
+html.rb-phone .rb-adminlogin-brand { min-height: 0; gap: 24px; padding: 24px; }
+html.rb-phone .rb-adminlogin-brand p { max-width: 24ch; font-size: 24px; }
+html.rb-phone .rb-adminlogin-panel { padding: 32px 24px max(24px, env(safe-area-inset-bottom)); }

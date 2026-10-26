@@ -1,6 +1,8 @@
 "use client";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { signOut } from "@/lib/auth-client";
 import {
   BarChart3,
   Fish,
@@ -87,6 +89,24 @@ async function write(resource: Tab, body: unknown, creating = false) {
 export function AdminConsole() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [revision, setRevision] = useState(0);
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState("");
+  async function leave() {
+    if (signingOut) return;
+    setSigningOut(true);
+    setSignOutError("");
+    try {
+      const result = await signOut();
+      if (result.error) {
+        setSignOutError("Unable to sign out. Please try again.");
+        return;
+      }
+      // Discard cached protected views after the server has cleared the session.
+      window.location.replace("/admin/login");
+    } catch {
+      setSignOutError("Unable to connect. Please try again.");
+    } finally { setSigningOut(false); }
+  }
   return (
     <main className="rb-admin" dir="ltr">
       <aside className="rb-admin-nav">
@@ -104,6 +124,17 @@ export function AdminConsole() {
             </button>
           ))}
         </nav>
+        <div className="rb-admin-foot">
+          <Link href="/">Customer site</Link>
+          <button
+            type="button"
+            disabled={signingOut}
+            onClick={leave}
+          >
+            {signingOut ? "Signing out…" : "Sign out"}
+          </button>
+          {signOutError && <p role="alert">{signOutError}</p>}
+        </div>
         <small>
           HoReCa procurement
           <br />

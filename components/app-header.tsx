@@ -8,7 +8,10 @@ import { useI18n } from "./i18n-provider";
 import { isLocale, languageNames, locales } from "@/lib/i18n/dictionaries";
 export function AppHeader() {
   const { locale, setLocale, t } = useI18n();
-  const landing = usePathname() === "/";
+  const pathname = usePathname();
+  const landing = pathname === "/";
+  // The administration area has its own chrome: never show the customer header there.
+  if (pathname === "/admin" || pathname?.startsWith("/admin/")) return null;
   return (
     <header className="rb-header">
       <Link href="/" className="rb-brand">

@@ -7,8 +7,9 @@ export default async function AdminPage() {
   try {
     await requireAdmin({ headers: await headers() });
   } catch (e) {
-    if (e instanceof ApiError && (e.status === 401 || e.status === 403))
-      redirect("/");
+    if (e instanceof ApiError && e.status === 403)
+      redirect("/admin/login?reason=forbidden");
+    if (e instanceof ApiError && e.status === 401) redirect("/admin/login");
     throw e;
   }
   return <AdminConsole />;
