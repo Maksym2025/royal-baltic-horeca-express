@@ -1,0 +1,1186 @@
+/* Responsive implementation of the seven supplied Royal Baltic screen references. */
+:root {
+  --rb-bg: #0a1728;
+  --rb-surface: #112238;
+  --rb-border: #26405a;
+  --rb-text: #f0f4f8;
+  --rb-muted: #a3b3c5;
+  --rb-gold: #d6b05c;
+  --rb-teal: #65d3c3;
+}
+html {
+  background: var(--rb-bg);
+  color-scheme: dark;
+  scroll-padding-top: 24px;
+}
+body {
+  background: var(--rb-bg);
+  color: var(--rb-text);
+  font-family: "Instrument Sans", system-ui, sans-serif;
+  line-height: 1.5;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+a {
+  color: inherit;
+}
+:where(button, a, input, select, textarea, summary):focus-visible {
+  outline: 3px solid var(--rb-gold);
+  outline-offset: 4px;
+}
+:where(main, section, article, aside, form) {
+  min-width: 0;
+}
+.rb-header {
+  min-height: 88px;
+  border-bottom: 1px solid var(--rb-border);
+  background: var(--rb-bg);
+  padding: 16px max(24px, calc((100vw - 1320px) / 2));
+  gap: 24px;
+  flex-wrap: nowrap;
+}
+.rb-brand {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 17px;
+  letter-spacing: 0.12em;
+  gap: 12px;
+}
+.rb-brand small {
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 9px;
+  color: var(--rb-gold);
+  letter-spacing: 0.24em;
+}
+.rb-header nav {
+  margin-inline-start: auto;
+  gap: 24px;
+}
+.rb-header nav a {
+  min-height: 44px;
+  color: var(--rb-muted);
+}
+.rb-header nav a[aria-current],
+.rb-header nav a:hover {
+  color: var(--rb-gold);
+}
+.rb-language {
+  margin-inline-start: auto;
+  gap: 4px;
+  border: 1px solid var(--rb-border);
+  padding: 0 10px;
+  border-radius: 24px;
+}
+.rb-language select {
+  background: transparent;
+  border: 0;
+  font-size: 14px;
+  max-width: 68px;
+  padding: 8px 0;
+  min-height: 44px;
+}
+.rb-language option {
+  background: var(--rb-bg);
+}
+.rb-bottom-nav {
+  display: none;
+}
+.rb-landing {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  margin: 0;
+}
+.rb-ocean-hero {
+  min-height: 560px;
+  height: min(76dvh, 760px);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: end;
+}
+.rb-ocean-image {
+  z-index: -2;
+  object-fit: cover;
+  object-position: 16% center;
+}
+.rb-ocean-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10, 23, 40, 0.1),
+      rgba(10, 23, 40, 0.15) 35%,
+      var(--rb-bg) 99%
+    ),
+    linear-gradient(90deg, rgba(10, 23, 40, 0.05), rgba(10, 23, 40, 0.65));
+}
+.rb-ocean-action {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+.rb-ocean-action h1 {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 500;
+  max-width: 10ch;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin: 12px 0 20px;
+}
+.rb-ocean-action > p:not(.rb-eyebrow) {
+  max-width: 440px;
+  margin: 0 0 24px;
+  color: var(--rb-text);
+  font-size: 17px;
+}
+.rb-eyebrow {
+  color: var(--rb-gold);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+.rb-motion-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 56px;
+  padding: 6px 6px 6px 24px;
+  border-radius: 32px;
+  background: var(--rb-gold);
+  color: var(--rb-bg);
+  text-decoration: none;
+  font-weight: 600;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease;
+}
+.rb-motion-arrow {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  background: var(--rb-bg);
+  color: #f8e6bc;
+  border-radius: 50%;
+  transition: transform 0.18s ease;
+}
+.rb-motion-cta:hover .rb-motion-arrow {
+  transform: rotate(45deg);
+}
+.rb-motion-cta:active {
+  transform: scale(0.97);
+}
+.rb-home-section,
+.rb-home-shortcuts,
+.rb-home-footer {
+  max-width: 1272px;
+  margin: 32px auto;
+}
+.rb-home-section h2 {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 28px;
+  font-weight: 500;
+  margin: 0 0 16px;
+}
+.rb-home-section h3 {
+  font-size: 16px;
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+.rb-home-section p,
+.rb-home-shortcuts small {
+  color: var(--rb-muted);
+  margin: 0;
+}
+.rb-home-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.rb-home-shortcuts > a {
+  display: flex;
+  gap: 16px;
+  padding: 24px;
+  text-decoration: none;
+  border: 1px solid var(--rb-border);
+  border-radius: 16px;
+  background: var(--rb-surface);
+}
+.rb-home-shortcuts svg {
+  color: var(--rb-teal);
+  flex: none;
+}
+.rb-home-shortcuts small {
+  display: block;
+  font-size: 13px;
+  margin-top: 4px;
+}
+.rb-home-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.rb-home-heading > a {
+  color: var(--rb-gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 14px;
+  text-decoration: none;
+}
+.rb-home-products {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.rb-home-product {
+  display: block;
+  text-decoration: none;
+  border: 1px solid var(--rb-border);
+  border-radius: 16px;
+  background: var(--rb-surface);
+  overflow: hidden;
+}
+.rb-home-product img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+.rb-home-product > div {
+  padding: 16px;
+}
+.rb-home-product span {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--rb-gold);
+  font-size: 13px;
+  margin-top: 16px;
+}
+.rb-home-product span svg {
+  flex: none;
+}
+.rb-benefits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--rb-border);
+  border-radius: 16px;
+  padding: 8px 24px;
+  background: var(--rb-surface);
+}
+.rb-benefits article {
+  display: flex;
+  gap: 16px;
+  padding: 20px 16px;
+}
+.rb-benefits svg {
+  flex: none;
+  color: var(--rb-teal);
+}
+.rb-benefits p {
+  font-size: 14px;
+}
+.rb-how {
+  padding: 24px;
+  border: 1px solid var(--rb-border);
+  border-radius: 20px;
+  background: var(--rb-surface);
+}
+.rb-how ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  padding: 0;
+  margin: 24px 0;
+  list-style: none;
+  counter-reset: steps;
+}
+.rb-how li {
+  display: flex;
+  gap: 16px;
+  counter-increment: steps;
+}
+.rb-how li::before {
+  content: counter(steps);
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border: 1px solid #8a7a4a;
+  border-radius: 50%;
+  color: var(--rb-gold);
+}
+.rb-how p {
+  font-size: 14px;
+}
+.rb-about-copy {
+  max-width: 760px;
+}
+.rb-home-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 24px;
+  border-top: 1px solid var(--rb-border);
+  font-size: 12px;
+  color: var(--rb-muted);
+}
+.rb-home-footer a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--rb-gold);
+}
+.rb-welcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+.rb-primary,
+.rb-secondary,
+.rb-google {
+  min-height: 52px;
+  border-radius: 12px;
+  font-size: 15px;
+  text-decoration: none;
+}
+.rb-primary {
+  background: var(--rb-gold);
+  color: var(--rb-bg);
+  border-color: var(--rb-gold);
+}
+.rb-primary:hover {
+  background: #e5c27b;
+  border-color: #e5c27b;
+}
+.rb-secondary,
+.rb-google {
+  background: rgba(10, 23, 40, 0.55);
+  color: var(--rb-text);
+  border-color: #526b85;
+}
+.rb-text-button {
+  color: var(--rb-gold);
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.rb-main {
+  max-width: 1320px;
+  padding: 0 24px 64px;
+}
+.rb-main h1,
+.rb-admin h1,
+.rb-auth h1,
+.rb-auth h2,
+.rb-adminlogin h1 {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 500;
+}
+.rb-tabs {
+  gap: 24px;
+  border-color: var(--rb-border);
+}
+.rb-tabs a {
+  padding: 16px 0;
+  text-decoration: none;
+  min-height: 52px;
+  border-bottom: 3px solid transparent;
+  color: var(--rb-muted);
+  font-size: 14px;
+}
+.rb-tabs a.active {
+  color: var(--rb-gold);
+  border-color: var(--rb-gold);
+}
+.rb-customer-bar {
+  background: #0d1d33;
+  color: var(--rb-muted);
+  border-bottom: 1px solid var(--rb-border);
+}
+.rb-customer-bar small {
+  color: var(--rb-teal);
+}
+.rb-route,
+.rb-muted,
+.rb-empty,
+.rb-product-content p,
+.rb-product-content small,
+.rb-delivery-address,
+.rb-account dt,
+.rb-admin dt,
+.rb-cart-lines small,
+.rb-order header small,
+.rb-order header span:not(.rb-badge),
+.rb-auth-form label small {
+  color: var(--rb-muted);
+}
+.rb-product,
+.rb-cart,
+.rb-panel,
+.rb-order,
+.rb-metrics,
+.rb-table-wrap {
+  background: var(--rb-surface);
+  border: 1px solid var(--rb-border);
+  border-radius: 16px;
+}
+.rb-product-grid {
+  gap: 16px;
+}
+.rb-product-photo {
+  background: #0d1d33;
+}
+.rb-product-bottom,
+.rb-cart > header,
+.rb-totals > span:last-child,
+.rb-cart-lines > div,
+.rb-delivery-address,
+.rb-order details,
+.rb-account .rb-panel h2:not(:first-child),
+.rb-metrics > div,
+.rb-table-wrap td {
+  border-color: var(--rb-border);
+}
+.rb-stock {
+  background: #0a1728;
+  color: var(--rb-teal);
+  border-radius: 6px;
+  font-size: 11px;
+}
+.rb-stock.low {
+  background: #3a2f14;
+  color: #f1ce87;
+}
+.rb-cart {
+  border-top: 1px solid var(--rb-border);
+  padding: 24px;
+  scroll-margin: 24px;
+}
+.rb-cart header > span {
+  background: #20364e;
+  border-radius: 8px;
+}
+.rb-search {
+  background: var(--rb-surface);
+  border-color: var(--rb-border);
+  border-radius: 12px;
+}
+.rb-categories button,
+.rb-status-filters button {
+  min-height: 44px;
+  border: 1px solid var(--rb-border);
+  background: var(--rb-surface);
+  color: var(--rb-text);
+  border-radius: 24px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+.rb-categories .active,
+.rb-status-filters .active {
+  background: var(--rb-gold);
+  color: var(--rb-bg);
+  border-color: var(--rb-gold);
+}
+.rb-quantity {
+  border-color: #3a5470;
+  border-radius: 10px;
+}
+.rb-quantity button {
+  min-width: 44px;
+  min-height: 44px;
+  background: #20364e;
+  color: var(--rb-text);
+}
+.rb-quantity button:last-child {
+  background: var(--rb-gold);
+  color: var(--rb-bg);
+}
+.rb-main input,
+.rb-main select,
+.rb-main textarea,
+.rb-auth input,
+.rb-admin input,
+.rb-admin select,
+.rb-admin textarea {
+  background: rgba(10, 23, 40, 0.6);
+  border: 1px solid #3a5470;
+  border-radius: 12px;
+  color: var(--rb-text);
+  min-height: 52px;
+  font-size: 16px;
+}
+.rb-search input {
+  background: transparent;
+}
+.rb-password-field {
+  position: relative;
+  display: block;
+}
+.rb-password-field input {
+  padding-inline-end: 60px;
+}
+.rb-password-field button {
+  position: absolute;
+  inset-block-start: 4px;
+  inset-inline-end: 4px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  display: grid;
+  place-items: center;
+  color: var(--rb-muted);
+}
+.rb-error {
+  background: #2a161e;
+  color: #ffc0c0;
+  border: 1px solid #925064;
+  border-radius: 12px;
+}
+.rb-warning {
+  background: #302916;
+  color: #f1ce87;
+  border: 1px solid #736334;
+  border-radius: 12px;
+}
+.rb-notice,
+.rb-success {
+  background: #123735;
+  color: #a5eee0;
+  border-color: #39796e;
+  border-radius: 12px;
+}
+.rb-badge {
+  background: #173b40;
+  color: #80dfd2;
+  border-radius: 20px;
+}
+.rb-state {
+  color: var(--rb-text);
+}
+.rb-state svg {
+  color: var(--rb-teal);
+}
+.rb-order summary,
+.rb-editor summary {
+  color: var(--rb-gold);
+}
+main.rb-auth {
+  width: 100%;
+  max-width: none;
+  min-height: calc(100dvh - 88px);
+  margin: 0;
+  border: 0;
+  padding: 40px 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 32px;
+  background:
+    linear-gradient(90deg, rgba(10, 23, 40, 0.4), rgba(10, 23, 40, 0.82)),
+    url("/design/hero.webp") 16% center/cover;
+  border-radius: 0;
+}
+.rb-auth-story {
+  max-width: 600px;
+  justify-self: end;
+  padding: 48px 32px;
+  background: none;
+}
+.rb-auth-story::after {
+  display: none;
+}
+.rb-auth-story h1 {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(36px, 4vw, 56px);
+}
+.rb-auth-story p {
+  color: var(--rb-muted);
+}
+.rb-auth-form {
+  padding: 32px;
+  width: 100%;
+  max-width: 440px;
+  background: rgba(17, 34, 56, 0.82);
+  border: 1px solid rgba(163, 179, 197, 0.35);
+  border-radius: 24px;
+  backdrop-filter: blur(12px);
+}
+.rb-auth label {
+  font-size: 14px;
+}
+.rb-auth-form h2 {
+  margin-bottom: 24px;
+  font-size: 30px;
+}
+.rb-auth-form label small {
+  font-size: 12px;
+}
+.rb-google > span {
+  color: var(--rb-text);
+}
+.rb-checkout .rb-commerce-grid {
+  display: block;
+  max-width: 760px;
+  margin: auto;
+}
+.rb-checkout .rb-commerce-grid > section {
+  display: none;
+}
+.rb-checkout .rb-cart {
+  position: static;
+}
+.rb-checkout .rb-mobile-cart {
+  display: none;
+}
+.rb-admin {
+  max-width: none;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: 248px minmax(0, 1fr);
+}
+.rb-admin-nav {
+  background: #071321;
+  border-inline-end: 1px solid var(--rb-border);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+}
+.rb-admin-brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  text-decoration: none;
+  margin-bottom: 24px;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 14px;
+  letter-spacing: 0.12em;
+}
+.rb-admin-brand small {
+  display: block;
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 9px;
+  color: var(--rb-gold);
+  letter-spacing: 0.2em;
+  margin-top: 4px;
+}
+.rb-admin-nav button {
+  border-radius: 10px;
+  min-height: 48px;
+  font-size: 15px;
+}
+.rb-admin-nav button.active {
+  border-inline-start: 3px solid var(--rb-gold);
+  background: #173b40;
+  color: #80dfd2;
+}
+.rb-admin-content {
+  padding: 28px;
+}
+.rb-admin-nav > small {
+  margin-top: auto;
+  padding-top: 24px;
+  color: var(--rb-gold);
+}
+.rb-admin-content .rb-section-heading {
+  margin-bottom: 24px;
+}
+.rb-metrics {
+  border-radius: 16px;
+  overflow: hidden;
+}
+.rb-metrics span,
+.rb-table-wrap td small {
+  color: var(--rb-muted);
+}
+.rb-table-wrap th {
+  background: #0d1d33;
+  color: var(--rb-muted);
+  font-size: 12px;
+}
+.rb-table-wrap table {
+  font-size: 14px;
+}
+.rb-table-wrap td {
+  padding: 12px;
+}
+.rb-status-filters {
+  display: flex;
+  gap: 8px;
+  overflow: auto;
+  padding-bottom: 12px;
+}
+.rb-status-filters button {
+  flex: none;
+}
+.rb-admin label.rb-admin-search {
+  margin: 4px 0 16px;
+}
+.rb-orders-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  align-items: start;
+}
+.rb-selected-row {
+  background: #16304a;
+}
+.rb-order-select {
+  background: none;
+  border: 0;
+  color: var(--rb-gold);
+  min-height: 44px;
+  text-decoration: underline;
+}
+.rb-order-detail {
+  padding: 20px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.rb-order-detail > header {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.rb-order-detail > header > div {
+  width: 100%;
+}
+.rb-order-detail details {
+  margin-top: 16px;
+}
+.rb-order-detail .rb-actions button {
+  flex: 1;
+  min-height: 48px;
+}
+.rb-checkout .rb-cart-lines .rb-quantity button {
+  width: 44px;
+  height: 44px;
+}
+@media (max-width: 1360px) {
+  .rb-home-section,
+  .rb-home-shortcuts,
+  .rb-home-footer {
+    margin-inline: 24px;
+  }
+}
+@media (max-width: 1120px) {
+  .rb-orders-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (min-width: 1600px) {
+  .rb-orders-workspace {
+    grid-template-columns: minmax(0, 1fr) 380px;
+  }
+}
+@media (max-width: 1000px) {
+  .rb-header nav {
+    gap: 16px;
+  }
+  .rb-header nav a span {
+    display: none;
+  }
+  .rb-home-products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rb-admin {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+  .rb-admin-brand {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 767px) {
+  body {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+  body:has(.rb-admin),
+  body:has(.rb-adminlogin) {
+    padding-bottom: 0;
+  }
+  .rb-header {
+    min-height: 76px;
+    padding: 12px 20px;
+    gap: 12px;
+  }
+  .rb-brand {
+    font-size: 14px;
+    gap: 8px;
+    letter-spacing: 0.1em;
+  }
+  .rb-brand img {
+    width: 44px;
+    height: 28px;
+  }
+  .rb-brand small {
+    font-size: 8px;
+    letter-spacing: 0.2em;
+  }
+  .rb-header nav {
+    display: none;
+  }
+  .rb-language {
+    flex: none;
+  }
+  .rb-bottom-nav {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    position: fixed;
+    z-index: 40;
+    inset: auto 0 0;
+    min-height: calc(72px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: #0d1d33;
+    border-top: 1px solid var(--rb-border);
+  }
+  .rb-bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 2px;
+    min-width: 0;
+    text-align: center;
+    text-decoration: none;
+    color: var(--rb-muted);
+    font-size: 11px;
+    line-height: 1.2;
+  }
+  .rb-bottom-nav a[aria-current] {
+    color: var(--rb-gold);
+  }
+  .rb-bottom-nav a span {
+    overflow-wrap: anywhere;
+  }
+  .rb-ocean-hero {
+    height: 500px;
+    min-height: 500px;
+  }
+  .rb-ocean-image {
+    object-position: 16% center;
+  }
+  .rb-ocean-action {
+    padding: 24px 20px;
+  }
+  .rb-ocean-action h1 {
+    font-size: 44px;
+  }
+  .rb-ocean-action > p:not(.rb-eyebrow) {
+    font-size: 15px;
+    max-width: 330px;
+  }
+  .rb-motion-cta {
+    max-width: 100%;
+    gap: 16px;
+  }
+  .rb-motion-cta > span:first-child {
+    min-width: 0;
+  }
+  .rb-home-section,
+  .rb-home-shortcuts,
+  .rb-home-footer {
+    margin: 28px 20px;
+  }
+  .rb-home-shortcuts {
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .rb-home-shortcuts > a {
+    padding: 16px;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 14px;
+  }
+  .rb-home-shortcuts small {
+    font-size: 12px;
+  }
+  .rb-home-heading {
+    align-items: start;
+  }
+  .rb-home-heading h2 {
+    font-size: 23px;
+  }
+  .rb-home-heading > a {
+    font-size: 12px;
+  }
+  .rb-home-products {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 12px;
+    gap: 12px;
+  }
+  .rb-home-product {
+    width: 230px;
+    flex: none;
+    scroll-snap-align: start;
+  }
+  .rb-home-product img {
+    height: 130px;
+  }
+  .rb-benefits {
+    display: block;
+    padding: 4px 16px;
+  }
+  .rb-benefits article {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--rb-border);
+  }
+  .rb-benefits article:last-child {
+    border: 0;
+  }
+  .rb-how {
+    padding: 20px;
+  }
+  .rb-how ol {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .rb-home-footer {
+    display: block;
+  }
+  .rb-home-footer a {
+    display: flex;
+  }
+  .rb-main {
+    padding: 0 20px 96px;
+  }
+  .rb-tabs {
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+  .rb-tabs a {
+    font-size: 14px;
+  }
+  .rb-commerce-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .rb-product-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rb-product {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+  }
+  .rb-product-photo {
+    height: 100%;
+    min-height: 220px;
+  }
+  .rb-product-content {
+    padding: 16px 12px;
+  }
+  .rb-product-content h2 {
+    font-size: 18px;
+  }
+  .rb-product-bottom {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .rb-product-bottom strong {
+    font-size: 24px;
+  }
+  .rb-stock {
+    inset-inline-start: 8px;
+    font-size: 10px;
+    padding: 4px 6px;
+  }
+  .rb-cart {
+    position: static;
+    padding: 20px;
+  }
+  .rb-mobile-cart {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: fixed;
+    inset: auto 12px calc(84px + env(safe-area-inset-bottom));
+    padding: 14px 16px;
+    min-height: 56px;
+    border-radius: 16px;
+    background: var(--rb-gold);
+    color: var(--rb-bg);
+    z-index: 30;
+    font-size: 14px;
+    text-decoration: none;
+  }
+  .rb-mobile-cart b {
+    margin-inline-start: auto;
+    color: var(--rb-bg);
+  }
+  .rb-auth {
+    min-height: calc(100dvh - 148px);
+    grid-template-columns: minmax(0, 1fr);
+    padding: 24px 20px 40px;
+    gap: 16px;
+    background:
+      linear-gradient(180deg, rgba(10, 23, 40, 0.25), rgba(10, 23, 40, 0.9)),
+      url("/design/hero.webp") 16% top/auto 700px no-repeat;
+  }
+  .rb-auth-story {
+    padding: 8px 0 16px;
+    justify-self: start;
+  }
+  .rb-auth-story h1 {
+    font-size: 36px;
+    margin: 12px 0;
+  }
+  .rb-auth-story > p {
+    display: none;
+  }
+  .rb-auth-story > div {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+  .rb-auth-form {
+    padding: 24px;
+    max-width: none;
+    border-radius: 20px;
+  }
+  .rb-auth-form h2 {
+    font-size: 28px;
+  }
+  .rb-welcome-actions {
+    display: grid;
+  }
+  .rb-admin {
+    display: block;
+  }
+  .rb-admin-nav {
+    padding: 16px 20px;
+  }
+  .rb-admin-brand {
+    margin: 0 0 16px;
+  }
+  .rb-admin-nav nav {
+    flex-direction: row;
+    overflow: auto;
+  }
+  .rb-admin-nav nav button {
+    flex: none;
+  }
+  .rb-admin-nav > small {
+    margin: 0;
+    padding-top: 8px;
+  }
+  .rb-admin-content {
+    padding: 24px 16px;
+  }
+  .rb-admin-content .rb-section-heading {
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .rb-adminlogin-brand {
+    background-image:
+      linear-gradient(180deg, rgba(10, 23, 40, 0.6), rgba(10, 23, 40, 0.92)),
+      url("/design/hero.webp");
+  }
+  .rb-order header {
+    flex-wrap: wrap;
+  }
+  .rb-account-grid,
+  .rb-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 359px) {
+  .rb-header {
+    padding-inline: 12px;
+    gap: 8px;
+  }
+  .rb-brand {
+    font-size: 12px;
+  }
+  .rb-brand img {
+    width: 36px;
+  }
+  .rb-language {
+    padding-inline: 6px;
+  }
+  .rb-main {
+    padding-inline: 12px;
+  }
+  .rb-auth {
+    padding-inline: 12px;
+  }
+  .rb-auth-form {
+    padding: 20px 16px;
+  }
+  .rb-product {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+  .rb-ocean-action h1 {
+    font-size: 40px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.rb-password-group > small {
+  display: block;
+  color: var(--rb-muted);
+  font-size: 12px;
+  margin-top: 8px;
+}
+.rb-order-item-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+}
+.rb-order-item-list li {
+  display: flex;
+  align-items: start;
+  gap: 16px;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--rb-border);
+  padding: 12px 0;
+}
+.rb-order-item-list small {
+  display: block;
+  color: var(--rb-muted);
+  font-size: 12px;
+  margin-top: 4px;
+}
+.rb-order-item-list b {
+  white-space: nowrap;
+}
+.rb-orders-workspace > .rb-table-wrap td:nth-child(3),
+.rb-orders-workspace > .rb-table-wrap td:nth-child(4) {
+  white-space: nowrap;
+}
+.rb-brand img {
+  height: auto;
+}
+
+/* Retain the existing Android desktop-webview normalization with the new shell. */
+html.rb-phone .rb-header { flex-wrap:nowrap; padding:12px 16px; }
+html.rb-phone .rb-header nav { display:none; }
+html.rb-phone .rb-brand { font-size:14px; }
+html.rb-phone .rb-brand img { width:42px; height:auto; }
+html.rb-phone main.rb-auth { display:grid; grid-template-columns:minmax(0,1fr); margin:0; padding:24px 16px 40px; gap:16px; width:100%; background:linear-gradient(180deg,rgba(10,23,40,.25),rgba(10,23,40,.9)),url('/design/hero.webp') 16% top/auto 700px no-repeat; }
+html.rb-phone .rb-auth-story { padding:8px 0 16px; }
+html.rb-phone .rb-auth-form { width:100%; max-width:none; padding:24px; background:rgba(17,34,56,.82); }
+html.rb-phone .rb-auth-story > div { display:flex; }

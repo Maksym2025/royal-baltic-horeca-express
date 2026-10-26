@@ -6,6 +6,9 @@ export default async function Account({
 }) {
   const { view } = await searchParams;
   return (
-    <LiveCommerce initialView={view === "orders" ? "orders" : "account"} />
+    <LiveCommerce
+      key={view === "orders" ? "orders" : "account"}
+      initialView={view === "orders" ? "orders" : "account"}
+    />
   );
 }
