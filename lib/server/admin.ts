@@ -13,6 +13,8 @@ import { ApiError, database } from "./db";
 import { readBody } from "./http";
 import { transitions, type OrderStatus } from "@/lib/order-status";
 
+import { withProductStorage, storageConditions } from "@/lib/product-storage";
+
 const text = z.string().trim().max(1000);
 const image = z
   .object({
@@ -34,6 +36,7 @@ const productSchema = z
     title: text.min(1),
     category: text.min(1),
     description: text.nullable().optional(),
+    storageCondition: z.enum(storageConditions).optional(),
     origin: text.nullable().optional(),
     species: text.nullable().optional(),
     unitWeight: text.nullable().optional(),
@@ -181,11 +184,12 @@ export async function adminWrite(resource: string, req: Request) {
             "Image must belong to configured catalog storage.",
           );
       }
-      const { expectedStock, ...fields } = data;
+      const { expectedStock, storageCondition, ...fields } = data;
       if (!creating && expectedStock === undefined)
         throw new ApiError(400, "Expected stock is required for updates.");
       const values = {
         ...fields,
+        description: withProductStorage(fields.description, storageCondition),
         stockStatus:
           data.stock === 0
             ? "out_of_stock"

@@ -21,7 +21,7 @@ export function AppHeader() {
     ["/", designCopy[locale].home, Home],
     ["/live", t("catalog"), Fish],
     ["/account?view=orders", t("orders"), Package],
-    ["/live#cart", t("cart"), ShoppingBag],
+    ["/cart", t("cart"), ShoppingBag],
     ["/account", t("account"), UserRound],
   ] as const;
   return (
@@ -35,7 +35,6 @@ export function AppHeader() {
         </Link>
         <nav aria-label="Royal Baltic">
           {links
-            .filter(([href]) => href !== "/live#cart")
             .map(([href, label, Icon]) => (
               <Link
                 href={href}

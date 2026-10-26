@@ -26,6 +26,7 @@ import {
   type LiveOrder,
   type CatalogImage,
 } from "@/lib/live-api";
+import { productStorage, productDescription } from "@/lib/product-storage";
 import { statusLabels, transitions } from "@/lib/order-status";
 import { locales, languageNames } from "@/lib/i18n/dictionaries";
 
@@ -298,7 +299,8 @@ function productBody(p: LiveProduct) {
     expectedStock: p.stock,
     title: p.title,
     category: p.category,
-    description: p.description,
+    description: productDescription(p.description),
+    storageCondition: productStorage(p),
     origin: p.origin,
     species: p.species,
     unitWeight: p.unitWeight,
@@ -475,6 +477,7 @@ function ProductEditor({
         title: get("title"),
         category: get("category"),
         description: get("description") || null,
+        storageCondition: get("storageCondition"),
         origin: get("origin") || null,
         species: get("species") || null,
         unitWeight: get("unitWeight") || null,
@@ -541,6 +544,17 @@ function ProductEditor({
           </select>
         </label>
         <label>
+          Storage condition
+          <select
+            name="storageCondition"
+            defaultValue={product ? productStorage(product) : "unspecified"}
+          >
+            <option value="unspecified">Not specified</option>
+            <option value="chilled">Chilled</option>
+            <option value="frozen">Frozen</option>
+          </select>
+        </label>
+        <label>
           Packaging
           <input
             name="packageType"
@@ -602,7 +616,7 @@ function ProductEditor({
         Description
         <textarea
           name="description"
-          defaultValue={product?.description || ""}
+          defaultValue={productDescription(product?.description)}
           maxLength={1000}
         />
       </label>

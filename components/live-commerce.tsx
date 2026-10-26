@@ -24,6 +24,7 @@ import {
   type OrderRequest,
   HttpError,
 } from "@/lib/live-api";
+import { readShopCart } from "@/lib/shop-cart";
 import { designCopy } from "./design-copy";
 import { AuthFlow } from "./auth-flow";
 import { AccountPanel } from "./account-panel";
@@ -136,21 +137,7 @@ function CommerceSession({
     const restore = async () => {
       update();
       try {
-        const savedCart = sessionStorage.getItem(cartKey);
-        if (savedCart) {
-          const parsed = JSON.parse(savedCart) as Record<string, unknown>;
-          setCart(
-            Object.fromEntries(
-              Object.entries(parsed).filter(
-                ([, v]) =>
-                  typeof v === "number" &&
-                  Number.isInteger(v) &&
-                  v >= 0 &&
-                  v <= 1000,
-              ),
-            ) as Record<string, number>,
-          );
-        }
+        setCart(readShopCart(userId));
         const stored = sessionStorage.getItem(storageKey);
         if (stored) {
           const p = JSON.parse(stored) as OrderRequest;
@@ -177,7 +164,7 @@ function CommerceSession({
       window.removeEventListener("online", update);
       window.removeEventListener("offline", update);
     };
-  }, [storageKey, cartKey]);
+  }, [storageKey, cartKey, userId]);
   const money = (n: number) =>
     new Intl.NumberFormat(locale, {
       style: "currency",
@@ -416,7 +403,7 @@ function CommerceSession({
               </div>
               <span className="rb-route">
                 <Truck size={20} />
-                {t("delivery")} · Baden-Württemberg
+                {t("delivery")} · France
               </span>
             </div>
             {view === "checkout" && (

@@ -3,15 +3,15 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowUpRight,
-  CalendarDays,
   Fish,
-  LockKeyhole,
   Package,
   Repeat2,
   Thermometer,
-  ReceiptText,
+  Truck,
 } from "lucide-react";
 import { useI18n } from "./i18n-provider";
+import { Storefront } from "./storefront";
+import { shopCopy } from "./shop-copy";
 import { designCopy } from "./design-copy";
 export function CatalogButton() {
   const { locale } = useI18n();
@@ -27,11 +27,12 @@ export function CatalogButton() {
 export function LandingHero({ welcome = false }: { welcome?: boolean }) {
   const { t, locale } = useI18n();
   const c = designCopy[locale];
+  const shop = shopCopy[locale];
   const benefits = [
     [Fish, c.fish, c.fishText],
     [Thermometer, c.cold, c.coldText],
-    [CalendarDays, c.day, c.dayText],
-    [ReceiptText, c.pay, c.payText],
+    [Truck, shop.delivery, shop.deliveryText],
+    [Package, shop.boxes, shop.boxesText],
   ] as const;
   return (
     <main className="rb-landing">
@@ -48,6 +49,16 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
           <p className="rb-eyebrow">{t("catalogIntro")}</p>
           <h1>{t("welcome")}</h1>
           <p>{c.intro}</p>
+          <div className="rb-store-usps rb-hero-usps">
+            <span>
+              <Truck size={18} />
+              {shop.delivery}
+            </span>
+            <span>
+              <Package size={18} />
+              {shop.boxes}
+            </span>
+          </div>
           <CatalogButton />
           {welcome && (
             <div className="rb-welcome-actions">
@@ -80,31 +91,7 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
             </Link>
           </section>
           <section className="rb-home-section">
-            <div className="rb-home-heading">
-              <h2>{c.selection}</h2>
-              <Link href="/live">
-                {c.explore} <ArrowUpRight size={18} aria-hidden="true" />
-              </Link>
-            </div>
-            <div className="rb-home-products">
-              {[c.salmon, c.seafood, c.whitefish, c.roe].map((name, i) => (
-                <Link href="/live" key={name} className="rb-home-product">
-                  <Image
-                    src={`/design/product-${i}.jpg`}
-                    alt={name}
-                    width={480}
-                    height={320}
-                  />
-                  <div>
-                    <h3>{name}</h3>
-                    <span>
-                      <LockKeyhole size={16} aria-hidden="true" />
-                      {c.locked}
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <Storefront featured />
           </section>
         </>
       )}
@@ -126,9 +113,9 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
         <h2>{c.how}</h2>
         <ol>
           {[
-            [c.register, c.registerText],
-            [c.verify, c.verifyText],
-            [c.order, c.orderText],
+            [shop.choose, shop.chooseText],
+            [shop.fill, shop.fillText],
+            [shop.receive, shop.receiveText],
           ].map(([title, text]) => (
             <li key={title}>
               <div>
@@ -138,8 +125,8 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
             </li>
           ))}
         </ol>
-        <Link className="rb-primary" href="/register">
-          {c.register}
+        <Link className="rb-primary" href="/live">
+          {c.explore}
           <ArrowUpRight size={20} aria-hidden="true" />
         </Link>
       </section>

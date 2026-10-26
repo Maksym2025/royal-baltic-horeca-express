@@ -1176,11 +1176,382 @@ main.rb-auth {
 }
 
 /* Retain the existing Android desktop-webview normalization with the new shell. */
-html.rb-phone .rb-header { flex-wrap:nowrap; padding:12px 16px; }
-html.rb-phone .rb-header nav { display:none; }
-html.rb-phone .rb-brand { font-size:14px; }
-html.rb-phone .rb-brand img { width:42px; height:auto; }
-html.rb-phone main.rb-auth { display:grid; grid-template-columns:minmax(0,1fr); margin:0; padding:24px 16px 40px; gap:16px; width:100%; background:linear-gradient(180deg,rgba(10,23,40,.25),rgba(10,23,40,.9)),url('/design/hero.webp') 16% top/auto 700px no-repeat; }
-html.rb-phone .rb-auth-story { padding:8px 0 16px; }
-html.rb-phone .rb-auth-form { width:100%; max-width:none; padding:24px; background:rgba(17,34,56,.82); }
-html.rb-phone .rb-auth-story > div { display:flex; }
+html.rb-phone .rb-header {
+  flex-wrap: nowrap;
+  padding: 12px 16px;
+}
+html.rb-phone .rb-header nav {
+  display: none;
+}
+html.rb-phone .rb-brand {
+  font-size: 14px;
+}
+html.rb-phone .rb-brand img {
+  width: 42px;
+  height: auto;
+}
+html.rb-phone main.rb-auth {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 24px 16px 40px;
+  gap: 16px;
+  width: 100%;
+  background:
+    linear-gradient(180deg, rgba(10, 23, 40, 0.25), rgba(10, 23, 40, 0.9)),
+    url("/design/hero.webp") 16% top/auto 700px no-repeat;
+}
+html.rb-phone .rb-auth-story {
+  padding: 8px 0 16px;
+}
+html.rb-phone .rb-auth-form {
+  width: 100%;
+  max-width: none;
+  padding: 24px;
+  background: rgba(17, 34, 56, 0.82);
+}
+html.rb-phone .rb-auth-story > div {
+  display: flex;
+}
+
+/* Store layout follows available content width, including zoomed Android webviews. */
+.rb-how ol {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+.rb-how li,
+.rb-how li > div,
+.rb-benefits article > div {
+  min-width: 0;
+}
+.rb-how h3,
+.rb-benefits h3,
+.rb-how p,
+.rb-benefits p {
+  overflow-wrap: break-word;
+}
+.rb-benefits {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+}
+.rb-ocean-action h1 {
+  max-width: 18ch;
+  font-size: clamp(30px, 5vw, 60px);
+}
+.rb-auth-story h1 {
+  font-size: clamp(28px, 3.5vw, 48px);
+  overflow-wrap: break-word;
+}
+.rb-store-page {
+  padding-top: 32px;
+  padding-bottom: 160px;
+}
+.rb-store {
+  color: var(--rb-text);
+}
+.rb-store h1 {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 36px;
+  margin: 8px 0;
+}
+.rb-store .rb-section-heading {
+  flex-wrap: wrap;
+}
+.rb-store-usps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  color: var(--rb-teal);
+  margin: 0 0 24px;
+}
+.rb-store-usps > span {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+}
+.rb-storage-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 20px;
+}
+.rb-storage-filters button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 16px;
+  border: 1px solid var(--rb-border);
+  border-radius: 24px;
+  color: var(--rb-text);
+  background: var(--rb-surface);
+}
+.rb-storage-filters button.active {
+  color: var(--rb-bg);
+  background: var(--rb-gold);
+  border-color: var(--rb-gold);
+}
+.rb-shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: 20px;
+}
+.rb-shop-product {
+  min-width: 0;
+  border: 1px solid var(--rb-border);
+  border-radius: 16px;
+  background: var(--rb-surface);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.rb-shop-photo {
+  position: relative;
+  height: 220px;
+  background: #0d1d33;
+  display: grid;
+  place-items: center;
+}
+.rb-shop-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.rb-shop-condition {
+  position: absolute;
+  inset: 12px auto auto 12px;
+  padding: 6px 10px;
+  background: #0a1728;
+  color: var(--rb-teal);
+  border-radius: 8px;
+  font-size: 12px;
+}
+.rb-shop-condition--frozen {
+  color: #a9d0fa;
+}
+.rb-shop-condition--unspecified {
+  color: var(--rb-muted);
+}
+.rb-shop-product-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.rb-shop-product-body h2 {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 24px;
+  line-height: 1.25;
+  margin: 8px 0;
+}
+.rb-shop-product-body > p,
+.rb-shop-product-body > small {
+  color: var(--rb-muted);
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+.rb-shop-description {
+  line-height: 1.5;
+}
+.rb-shop-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+.rb-shop-price strong {
+  font-size: 30px;
+  font-weight: 600;
+}
+.rb-shop-price > span {
+  font-size: 12px;
+  color: var(--rb-muted);
+}
+.rb-shop-product-body .rb-shop-availability {
+  color: var(--rb-teal);
+  margin: 12px 0;
+}
+.rb-add-to-cart {
+  width: 100%;
+  gap: 12px;
+  min-height: 52px;
+}
+.rb-shop-in-basket {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.rb-shop-in-basket .rb-quantity {
+  min-height: 52px;
+  flex: 1;
+  justify-content: space-between;
+}
+.rb-shop-in-basket .rb-quantity button {
+  width: 52px;
+  min-height: 52px;
+}
+.rb-shop-in-basket > span {
+  font-size: 14px;
+  color: var(--rb-muted);
+}
+.rb-shop-basket {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  position: sticky;
+  bottom: 24px;
+  margin: 24px 0 0;
+  border: 1px solid var(--rb-border);
+  border-radius: 16px;
+  padding: 16px 20px;
+  background: #0d1d33;
+  z-index: 25;
+}
+.rb-shop-basket > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.rb-shop-basket strong {
+  white-space: nowrap;
+  font-size: 20px;
+}
+.rb-shop-basket small {
+  color: var(--rb-muted);
+  font-size: 12px;
+}
+.rb-store-loading {
+  border: 1px solid var(--rb-border);
+  border-radius: 16px;
+  padding: 48px 20px;
+  color: var(--rb-muted);
+}
+.rb-store-featured {
+  margin-top: 8px;
+}
+.rb-store-featured .rb-home-heading {
+  margin-bottom: 16px;
+}
+@media (max-width: 767px) {
+  .rb-store-page {
+    padding: 24px 16px 160px;
+  }
+  .rb-shop-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rb-shop-photo {
+    height: 230px;
+  }
+  .rb-shop-basket {
+    flex-direction: column;
+    align-items: stretch;
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    padding: 16px;
+  }
+  .rb-shop-basket > div {
+    justify-content: space-between;
+    font-size: 14px;
+  }
+  .rb-shop-basket > div > svg {
+    display: none;
+  }
+  .rb-home-heading {
+    flex-wrap: wrap;
+  }
+}
+html.rb-phone .rb-how ol,
+html.rb-phone .rb-benefits,
+html.rb-phone .rb-shop-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+html.rb-phone .rb-how {
+  padding: 20px;
+}
+html.rb-phone .rb-how li {
+  display: flex;
+  gap: 16px;
+}
+html.rb-phone .rb-how h3 {
+  font-size: 16px;
+}
+html.rb-phone .rb-how p {
+  font-size: 14px;
+}
+html.rb-phone .rb-benefits {
+  padding: 4px 16px;
+}
+html.rb-phone .rb-benefits article {
+  padding: 16px 0;
+}
+html.rb-phone .rb-ocean-action h1 {
+  font-size: 32px;
+}
+html.rb-phone .rb-ocean-hero {
+  min-height: 560px;
+  height: auto;
+}
+html.rb-phone .rb-ocean-action {
+  padding: 24px 20px;
+}
+html.rb-phone .rb-bottom-nav {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  position: fixed;
+  z-index: 40;
+  inset: auto 0 0;
+  min-height: 72px;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: #0d1d33;
+  border-top: 1px solid var(--rb-border);
+}
+html.rb-phone .rb-bottom-nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 2px;
+  font-size: 11px;
+  color: var(--rb-muted);
+  text-decoration: none;
+}
+html.rb-phone .rb-bottom-nav a[aria-current] {
+  color: var(--rb-gold);
+}
+html.rb-phone .rb-shop-basket {
+  flex-direction: column;
+  align-items: stretch;
+  bottom: 84px;
+  padding: 16px;
+}
+html.rb-phone .rb-store-page {
+  padding: 24px 16px 160px;
+}
+html.rb-phone .rb-auth-story h1 {
+  font-size: 28px;
+}
+.rb-hero-usps {
+  color: var(--rb-text);
+  margin-bottom: 24px;
+}
+.rb-hero-usps span {
+  background: rgba(10, 23, 40, 0.72);
+  border: 1px solid var(--rb-border);
+  border-radius: 20px;
+  padding: 8px 12px;
+}
+.rb-ocean-hero {
+  min-height: 640px;
+}
+@media (max-width: 767px) {
+  .rb-ocean-hero {
+    height: auto;
+    min-height: 640px;
+  }
+}
+html.rb-phone .rb-ocean-hero {
+  min-height: 640px;
+}

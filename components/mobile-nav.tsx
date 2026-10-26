@@ -16,7 +16,7 @@ export function MobileNav() {
         ? "account"
         : path === "/live"
           ? "catalog"
-          : path === "/checkout"
+          : path === "/checkout" || path === "/cart"
             ? "cart"
             : path === "/"
               ? "home"
@@ -25,7 +25,7 @@ export function MobileNav() {
     ["/", designCopy[locale].home, Home, "home"],
     ["/live", t("catalog"), Fish, "catalog"],
     ["/account?view=orders", t("orders"), Package, "orders"],
-    ["/checkout", t("cart"), ShoppingBag, "cart"],
+    ["/cart", t("cart"), ShoppingBag, "cart"],
     ["/account", t("account"), UserRound, "account"],
   ] as const;
   return (
