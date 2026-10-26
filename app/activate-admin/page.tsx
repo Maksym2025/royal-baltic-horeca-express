@@ -9,6 +9,8 @@ export default function ActivateAdmin() {
   const [done, setDone] = useState(false);
   const [message, setMessage] = useState("");
   useEffect(() => {
+    // The invitation fragment is browser-only; read it once after hydration, then remove it.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setToken(new URLSearchParams(window.location.hash.slice(1)).get("token") || "");
     window.history.replaceState(null, "", window.location.pathname);
   }, []);
@@ -33,7 +35,7 @@ export default function ActivateAdmin() {
     <h1>Доступ администратора</h1>
     <p>Подтвердите адрес из приглашения и создайте личный пароль. Ссылка одноразовая.</p>
     {message && <p role={done ? "status" : "alert"}>{message}</p>}
-    {done ? <a className="rb-primary" href="https://royal-baltic-horeca-express-git-main-maksym2025s-projects.vercel.app/live">Войти в приложение</a> :
+    {done ? <a className="rb-primary" href="/admin/login">Войти в панель администратора</a> :
     <form onSubmit={activate} style={{display:"grid",gap:16}}>
       <label>Новый пароль (12–128 символов)<input style={{display:"block",width:"100%",padding:12}} type={visible ? "text" : "password"} autoComplete="new-password" required minLength={12} maxLength={128} value={password} onChange={e=>setPassword(e.target.value)}/></label>
       <label>Повторите пароль<input style={{display:"block",width:"100%",padding:12}} type={visible ? "text" : "password"} autoComplete="new-password" required minLength={12} maxLength={128} value={confirm} onChange={e=>setConfirm(e.target.value)}/></label>

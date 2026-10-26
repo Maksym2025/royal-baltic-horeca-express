@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "test:auth": "node --experimental-strip-types --test tests/auth-origins.test.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
