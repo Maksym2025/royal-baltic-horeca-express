@@ -1,3 +1,4 @@
+import { MobileViewport } from "@/components/mobile-viewport";
 import { cookies } from "next/headers";
 import { I18nProvider } from "@/components/i18n-provider";
 import { AppHeader } from "@/components/app-header";
@@ -34,6 +35,7 @@ export default async function Layout({
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <body>
         <I18nProvider initialLocale={locale}>
+          <MobileViewport />
           <AppHeader />
           {children}
         </I18nProvider>
