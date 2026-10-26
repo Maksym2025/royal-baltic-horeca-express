@@ -1,21 +1,25 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { CatalogButton } from "./landing-hero";
 import { Globe, UserRound, Fish, Package } from "lucide-react";
 import { useI18n } from "./i18n-provider";
 import { isLocale, languageNames, locales } from "@/lib/i18n/dictionaries";
 export function AppHeader() {
   const { locale, setLocale, t } = useI18n();
+  const landing = usePathname() === "/";
   return (
     <header className="rb-header">
       <Link href="/" className="rb-brand">
-        <Image src="/images/whale.png" alt="" width={56} height={40} />
+        <Image src="/images/royal-baltic-mark.png" alt="" width={56} height={40} />
         <span>
           ROYAL BALTIC<small>HORECA EXPRESS</small>
         </span>
       </Link>
+      {landing && <CatalogButton compact />}
       <nav aria-label="Royal Baltic">
-        <Link href="/">
+        <Link href="/live">
           <Fish size={18} />
           <span>{t("catalog")}</span>
         </Link>

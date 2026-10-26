@@ -1,5 +1,2 @@
-import { LiveCommerce } from '@/components/live-commerce';
-
-export default function HomePage() {
-  return <LiveCommerce />;
-}
+import { LandingHero } from "@/components/landing-hero";
+export default function HomePage() { return <LandingHero />; }
