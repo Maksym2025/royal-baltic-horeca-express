@@ -17,7 +17,7 @@ export function parseCart(raw: string | null): ShopCart {
 export function readShopCart(userId: string): ShopCart {
   try {
     const own = parseCart(sessionStorage.getItem(cartKey(userId)));
-    if (userId !== "guest") {
+    if (userId !== "guest" && !sessionStorage.getItem(`rb-pending-${userId}`)) {
       const guest = parseCart(sessionStorage.getItem(cartKey("guest")));
       for (const [id, qty] of Object.entries(guest))
         own[id] = Math.min(1000, (own[id] || 0) + qty);

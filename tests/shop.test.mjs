@@ -30,3 +30,11 @@ test("guest basket transfers to the signed-in account exactly once",()=>{
  assert.deepEqual(readShopCart("client"),{salmon:3,prawns:3});
  delete globalThis.sessionStorage;
 });
+
+test("guest basket is preserved while an existing account order is unresolved",()=>{
+ const data=new Map([["rb-cart-guest",'{"prawns":2}'],["rb-cart-client",'{"salmon":1}'],["rb-pending-client",'{}']]);
+ globalThis.sessionStorage={getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)};
+ assert.deepEqual(readShopCart("client"),{salmon:1});assert.equal(data.has("rb-cart-guest"),true);
+ data.delete("rb-pending-client");assert.deepEqual(readShopCart("client"),{salmon:1,prawns:2});
+ delete globalThis.sessionStorage;
+});

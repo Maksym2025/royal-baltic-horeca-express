@@ -38,6 +38,7 @@ export function Storefront({
   const [categories, setCategories] = useState<LiveCategory[]>([]);
   const [cart, setCart] = useState<ShopCart>({});
   const [ready, setReady] = useState(false);
+  const [locked, setLocked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [storage, setStorage] = useState<StorageCondition | "">("");
@@ -68,12 +69,17 @@ export function Storefront({
     if (isPending) return;
     const restore = () => {
       setCart(readShopCart(userId));
+      try {
+        setLocked(!!sessionStorage.getItem(`rb-pending-${userId}`));
+      } catch {
+        setLocked(false);
+      }
       setReady(true);
     };
     restore();
   }, [isPending, userId]);
   function change(p: LiveProduct, delta: number) {
-    if (!ready) return;
+    if (!ready || locked) return;
     setCart((current) => {
       const next = {
         ...current,
@@ -200,7 +206,9 @@ export function Storefront({
       ) : (
         <button
           className="rb-text-button"
+          disabled={locked}
           onClick={() => {
+            if (locked) return;
             setCart({});
             try {
               sessionStorage.setItem(cartKey(userId), "{}");
@@ -209,6 +217,11 @@ export function Storefront({
         >
           {t("clear")}
         </button>
+      )}
+      {locked && (
+        <p className="rb-warning" role="status">
+          {t("orderLocked")} <Link href="/checkout">{c.checkout}</Link>
+        </p>
       )}
       <p className="sr-only" role="status">
         {notice}
@@ -286,7 +299,7 @@ export function Storefront({
                     <div className="rb-shop-in-basket">
                       <div className="rb-quantity">
                         <button
-                          disabled={!ready}
+                          disabled={!ready || locked}
                           aria-label={`${t("remove")} ${title(p)}`}
                           onClick={() => change(p, -1)}
                         >
@@ -296,7 +309,9 @@ export function Storefront({
                           {qty}
                         </output>
                         <button
-                          disabled={!ready || qty >= Math.min(p.stock, 1000)}
+                          disabled={
+                            !ready || locked || qty >= Math.min(p.stock, 1000)
+                          }
                           aria-label={`${t("add")} ${title(p)}`}
                           onClick={() => change(p, 1)}
                         >
@@ -308,7 +323,7 @@ export function Storefront({
                   ) : (
                     <button
                       className="rb-primary rb-add-to-cart"
-                      disabled={!ready || p.stock === 0}
+                      disabled={!ready || locked || p.stock === 0}
                       onClick={() => change(p, 1)}
                       aria-label={`${c.add}: ${title(p)}`}
                     >
