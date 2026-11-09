@@ -49,6 +49,6 @@ export async function requireRestaurant(request: Pick<Request, "headers">) {
 }
 export function assertSameOrigin(request: Request) {
   const origin = request.headers.get("origin");
-  if (!origin || origin !== new URL(request.url).origin)
+  if (!origin || new URL(origin).host !== (request.headers.get("host") || new URL(request.url).host))
     throw new ApiError(403, "Invalid origin.");
 }
