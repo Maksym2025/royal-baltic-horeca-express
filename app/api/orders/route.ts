@@ -72,26 +72,26 @@ export async function POST(req: Request) {
     assertSameOrigin(req);
     const r = await requireRestaurant(req);
     const raw = await req.text();
-    if (raw.length > 20000) throw new ApiError(413, "Anfrage zu groГџ.");
+    if (raw.length > 20000) throw new ApiError(413, "Anfrage zu groß.");
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
     } catch {
-      throw new ApiError(400, "UngГјltiges JSON.");
+      throw new ApiError(400, "Ungültiges JSON.");
     }
     const valid = requestSchema.safeParse(parsed);
-    if (!valid.success) throw new ApiError(400, "UngГјltige Bestelldaten.");
+    if (!valid.success) throw new ApiError(400, "Ungültige Bestelldaten.");
     const body = valid.data;
     if (new Set(body.items.map((i) => i.productId)).size !== body.items.length)
       throw new ApiError(400, "Doppelte Artikel.");
     if (body.paymentMethod === "invoice" && r.paymentTerms !== "INVOICE_7_DAYS")
       throw new ApiError(
         403,
-        "Rechnung ist fГјr diesen Betrieb nicht freigeschaltet.",
+        "Rechnung ist für diesen Betrieb nicht freigeschaltet.",
       );
     if(coreEnabled()){
       const [slot]=await database().select().from(deliverySlots).where(and(eq(deliverySlots.id,body.deliverySlotId),eq(deliverySlots.enabled,true),gt(deliverySlots.cutoffAt,new Date()))).limit(1);
-      if(!slot)throw new ApiError(409,"Lieferfenster nicht mehr verfГјgbar.");
+      if(!slot)throw new ApiError(409,"Lieferfenster nicht mehr verfügbar.");
       return Response.json(await corePlaceOrder(r.id,body,{deliveryDate:slot.deliveryDate,deliverySlotId:slot.id,window:slot.window,deliveryAddress:r.address,paymentMethod:body.paymentMethod}),{status:201,headers:{"Cache-Control":"private, no-store"}});
     }
     const canonical = JSON.stringify({
