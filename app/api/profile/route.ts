@@ -1,3 +1,4 @@
+import {unifiedEnabled} from "@/lib/server/unified";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { restaurants } from "@/db/schema";
@@ -27,6 +28,7 @@ export async function PATCH(req: Request) {
         })
         .strict(),
     );
+    if(unifiedEnabled())throw new (await import("@/lib/server/db")).ApiError(409,"Contact your manager to update verified legal details.");
     const [updated] = await database()
       .update(restaurants)
       .set(data)
@@ -37,3 +39,4 @@ export async function PATCH(req: Request) {
     return apiError(e);
   }
 }
+

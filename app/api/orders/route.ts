@@ -1,3 +1,4 @@
+import {unifiedEnabled,unifiedSlots} from "@/lib/server/unified";
 import { eq, desc, sql, inArray, and, gt } from "drizzle-orm";
 import { z } from "zod";
 import { orders, orderItems, payments, deliverySlots } from "@/db/schema";
@@ -25,7 +26,7 @@ const requestSchema = z
 export async function GET(req: Request) {
   try {
     const r = await requireRestaurant(req);
-    if(coreEnabled())return Response.json(await coreOrders(r.id),{headers:{"Cache-Control":"private, no-store"}});
+    if(coreEnabled())return Response.json(await coreOrders(r.subject??r.id),{headers:{"Cache-Control":"private, no-store"}});
     const db = database();
     const records = await db
       .select()
@@ -90,9 +91,9 @@ export async function POST(req: Request) {
         "Rechnung ist für diesen Betrieb nicht freigeschaltet.",
       );
     if(coreEnabled()){
-      const [slot]=await database().select().from(deliverySlots).where(and(eq(deliverySlots.id,body.deliverySlotId),eq(deliverySlots.enabled,true),gt(deliverySlots.cutoffAt,new Date()))).limit(1);
+      const slot=unifiedEnabled()?(await unifiedSlots(r.subject)).find((s:any)=>s.id===body.deliverySlotId):(await database().select().from(deliverySlots).where(and(eq(deliverySlots.id,body.deliverySlotId),eq(deliverySlots.enabled,true),gt(deliverySlots.cutoffAt,new Date()))).limit(1))[0];
       if(!slot)throw new ApiError(409,"Lieferfenster nicht mehr verfügbar.");
-      return Response.json(await corePlaceOrder(r.id,body,{deliveryDate:slot.deliveryDate,deliverySlotId:slot.id,window:slot.window,deliveryAddress:r.address,paymentMethod:body.paymentMethod}),{status:201,headers:{"Cache-Control":"private, no-store"}});
+      return Response.json(await corePlaceOrder(r.subject??r.id,body,{deliveryDate:slot.deliveryDate,deliverySlotId:slot.id,window:slot.window,deliveryAddress:r.address,paymentMethod:body.paymentMethod}),{status:201,headers:{"Cache-Control":"private, no-store"}});
     }
     const canonical = JSON.stringify({
       slot: body.deliverySlotId,
@@ -119,3 +120,4 @@ export async function POST(req: Request) {
     return apiError(e);
   }
 }
+

@@ -1,3 +1,4 @@
+import {unifiedEnabled,unifiedCompany} from "./unified";
 import { eq } from "drizzle-orm";
 import { restaurantMembers, restaurants, user } from "@/db/schema";
 import { auth } from "@/lib/auth";
@@ -27,6 +28,7 @@ export async function requireAdmin(request: Pick<Request, "headers">) {
   return account;
 }
 export async function getCompany(userId: string) {
+  if(unifiedEnabled()){const c=await unifiedCompany(userId);return c?{...c,subject:userId}:null;}
   const [record] = await database()
     .select({ restaurant: restaurants })
     .from(restaurantMembers)
@@ -52,3 +54,4 @@ export function assertSameOrigin(request: Request) {
   if (!origin || new URL(origin).host !== (request.headers.get("host") || new URL(request.url).host))
     throw new ApiError(403, "Invalid origin.");
 }
+

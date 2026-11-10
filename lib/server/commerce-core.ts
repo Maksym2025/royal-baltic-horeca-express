@@ -1,7 +1,9 @@
+import {unifiedEnabled,unifiedCall} from "./unified";
 import type {LiveProduct,LiveOrder} from "@/lib/live-api";
 import {ApiError} from "./db";
-export const coreEnabled=()=>Boolean(process.env.COMMERCE_CORE_URL);
+export const coreEnabled=()=>unifiedEnabled()||Boolean(process.env.COMMERCE_CORE_URL);
 async function core<T>(path:string,subject:string,init:RequestInit={}):Promise<T>{
+ if(unifiedEnabled()){if(path==="/api/channel/catalog")return unifiedCall<T>(subject,"catalog");if(path==="/api/channel/orders"&&init.method==="POST"){const body=JSON.parse(String(init.body));const result=await unifiedCall<{id:string}>(subject,"place_order",body,body.idempotencyKey);return {orderId:result.id} as T;}if(path==="/api/channel/orders")return unifiedCall<T>(subject,"orders");throw new ApiError(404,"Unknown Core operation");}
  const base=process.env.COMMERCE_CORE_URL;const secret=process.env.COMMERCE_CORE_SECRET;
  if(!base||!secret)throw new ApiError(503,"Commerce Core bridge is not configured.");
  const url=new URL(path,base);url.searchParams.set("subject",subject);
@@ -11,7 +13,7 @@ async function core<T>(path:string,subject:string,init:RequestInit={}):Promise<T
 type Product={vat_rate:number;id:string;name:string;species:string|null;product_form:string|null;pack_weight:string|number;effective_price:number;available_kg:number};
 export async function coreProducts(subject:string):Promise<LiveProduct[]>{
  const b=await core<{products:Product[]}>("/api/channel/catalog",subject);
- return b.products.map(p=>({id:p.id,title:p.name,category:p.species||"seafood",description:p.product_form,origin:null,species:p.species,unitWeight:p.pack_weight+" kg",imageUrl:null,images:[],translations:{},packageType:p.pack_weight+" kg carton",priceNetto:Math.round(p.effective_price*Number(p.pack_weight)*100),vatRate:p.vat_rate,stock:Math.floor(p.available_kg/Number(p.pack_weight)),stockStatus:p.available_kg>0?"in_stock":"out_of_stock",active:true}));
+ return b.products.map(p=>({id:p.id,title:p.name,category:p.species||"seafood",description:p.product_form,origin:null,species:p.species,unitWeight:p.pack_weight+" kg",imageUrl:null,images:[],translations:{},packageType:p.pack_weight+" kg carton",priceNetto:Math.round(p.effective_price*Number(p.pack_weight)*100),vatRate:Number(p.vat_rate),stock:Math.floor(p.available_kg/Number(p.pack_weight)),stockStatus:p.available_kg>0?"in_stock":"out_of_stock",active:true}));
 }
 export async function coreCategories(subject:string){const products=await coreProducts(subject);return [...new Set(products.map(p=>p.category))].map(id=>({id,name:id,active:true,translations:{}}));}
 type CoreOrder={channel_context?:Record<string,string>;id:string;fulfillment_state:string;created_at:string;items:{productId:string;qty:number|string;unitPrice:number|string;packWeight:number|string;title:string;vatRate:number|null}[];payment_verified:boolean};
@@ -22,3 +24,4 @@ export async function coreOrders(subject:string):Promise<LiveOrder[]>{
 export async function corePlaceOrder(subject:string,body:{idempotencyKey:string;items:{productId:string;quantity:number}[]},context:Record<string,string>={}){
  return core<{orderId:string}>("/api/channel/orders",subject,{method:"POST",body:JSON.stringify({subject,context,idempotencyKey:body.idempotencyKey,items:body.items.map(i=>({productId:i.productId,cases:i.quantity}))})});
 }
+

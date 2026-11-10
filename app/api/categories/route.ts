@@ -6,7 +6,7 @@ import { privateJson } from "@/lib/server/http";
 import {coreEnabled,coreCategories} from "@/lib/server/commerce-core";
 export async function GET(req: Request) {
   try {
-    const restaurant=await requireRestaurant(req);if(coreEnabled())return Response.json(await coreCategories(restaurant.id));
+    const restaurant=await requireRestaurant(req);if(coreEnabled())return Response.json(await coreCategories(restaurant.subject??restaurant.id));
     return privateJson(
       await database()
         .select()
@@ -18,3 +18,4 @@ export async function GET(req: Request) {
     return apiError(e);
   }
 }
+

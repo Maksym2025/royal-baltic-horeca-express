@@ -1,3 +1,4 @@
+import {unifiedEnabled,unifiedCompany,unifiedRegister} from "@/lib/server/unified";
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
@@ -11,7 +12,7 @@ const companySchema = z
     email: z.string().email().max(254),
     phone: z.string().trim().max(60).optional().default(""),
     address: z.string().trim().min(5).max(300),
-    vatNumber: z.string().trim().min(4).max(40),
+    vatNumber: z.string().trim().max(40),
   })
   .strict();
 
@@ -19,6 +20,7 @@ export async function GET(req: Request) {
   try {
     const session = await auth.api.getSession({ headers: req.headers });
     if (!session?.user?.id) throw new ApiError(401, "Anmeldung erforderlich.");
+    if(unifiedEnabled()){const account=await requireUser(req);return Response.json({company:await unifiedCompany(account.id),role:account.role},{headers:{"Cache-Control":"no-store"}});}
     const db = database();
     const [record] = await db
       .select({ restaurant: restaurants })
@@ -56,6 +58,7 @@ export async function POST(req: Request) {
     if (!parsed.success)
       throw new ApiError(400, "Bitte Firmendaten vollständig prüfen.");
 
+    if(unifiedEnabled()){const company=await unifiedRegister(session.user.id,parsed.data);return Response.json({company,status:"pending_verification"},{status:201,headers:{"Cache-Control":"no-store"}});}
     const db = database();
     const [existing] = await db
       .select({ restaurantId: restaurantMembers.restaurantId })
@@ -89,3 +92,4 @@ export async function POST(req: Request) {
     return apiError(e);
   }
 }
+
