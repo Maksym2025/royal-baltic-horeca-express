@@ -1,3 +1,5 @@
+import {coreEnabled} from "@/lib/server/commerce-core";
+import {ApiError} from "@/lib/server/db";
 import { requireAdmin, assertSameOrigin } from "@/lib/server/auth";
 import { adminRead, adminWrite } from "@/lib/server/admin";
 import { apiError } from "@/lib/server/db";
@@ -6,6 +8,7 @@ type Context = { params: Promise<{ resource: string }> };
 export async function GET(req: Request, { params }: Context) {
   try {
     await requireAdmin(req);
+    if(coreEnabled()&&["orders","products","payments"].includes((await params).resource))throw new ApiError(409,"Manage commerce records in Commerce Core.");
     return privateJson(
       await adminRead((await params).resource, new URL(req.url)),
     );
@@ -17,6 +20,7 @@ export async function POST(req: Request, { params }: Context) {
   try {
     assertSameOrigin(req);
     await requireAdmin(req);
+    if(coreEnabled()&& !["customers","delivery-slots"].includes((await params).resource))throw new ApiError(409,"Manage commerce records in Commerce Core.");
     return privateJson(await adminWrite((await params).resource, req), 201);
   } catch (e) {
     return apiError(e);
@@ -26,6 +30,7 @@ export async function PATCH(req: Request, context: Context) {
   try {
     assertSameOrigin(req);
     await requireAdmin(req);
+    if(coreEnabled()&& !["customers","delivery-slots"].includes((await context.params).resource))throw new ApiError(409,"Manage commerce records in Commerce Core.");
     return privateJson(await adminWrite((await context.params).resource, req));
   } catch (e) {
     return apiError(e);

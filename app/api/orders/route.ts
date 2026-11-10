@@ -1,8 +1,10 @@
-import { eq, desc, sql, inArray } from "drizzle-orm";
+import {unifiedEnabled,unifiedSlots} from "@/lib/server/unified";
+import { eq, desc, sql, inArray, and, gt } from "drizzle-orm";
 import { z } from "zod";
-import { orders, orderItems, payments } from "@/db/schema";
+import { orders, orderItems, payments, deliverySlots } from "@/db/schema";
 import { database, apiError, ApiError } from "@/lib/server/db";
 import { requireRestaurant, assertSameOrigin } from "@/lib/server/auth";
+import {coreEnabled,coreOrders,corePlaceOrder} from "@/lib/server/commerce-core";
 const requestSchema = z
   .object({
     idempotencyKey: z.string().uuid(),
@@ -24,6 +26,7 @@ const requestSchema = z
 export async function GET(req: Request) {
   try {
     const r = await requireRestaurant(req);
+    if(coreEnabled())return Response.json(await coreOrders(r.subject??r.id),{headers:{"Cache-Control":"private, no-store"}});
     const db = database();
     const records = await db
       .select()
@@ -87,6 +90,11 @@ export async function POST(req: Request) {
         403,
         "Rechnung ist für diesen Betrieb nicht freigeschaltet.",
       );
+    if(coreEnabled()){
+      const slot=unifiedEnabled()?(await unifiedSlots(r.subject)).find((s:any)=>s.id===body.deliverySlotId):(await database().select().from(deliverySlots).where(and(eq(deliverySlots.id,body.deliverySlotId),eq(deliverySlots.enabled,true),gt(deliverySlots.cutoffAt,new Date()))).limit(1))[0];
+      if(!slot)throw new ApiError(409,"Lieferfenster nicht mehr verfügbar.");
+      return Response.json(await corePlaceOrder(r.subject??r.id,body,{deliveryDate:slot.deliveryDate,deliverySlotId:slot.id,window:slot.window,deliveryAddress:r.address,paymentMethod:body.paymentMethod}),{status:201,headers:{"Cache-Control":"private, no-store"}});
+    }
     const canonical = JSON.stringify({
       slot: body.deliverySlotId,
       payment: body.paymentMethod,
@@ -112,3 +120,4 @@ export async function POST(req: Request) {
     return apiError(e);
   }
 }
+

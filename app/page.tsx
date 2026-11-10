@@ -1,5 +1,2 @@
-import { LiveCommerce } from '@/components/live-commerce';
-
-export default function HomePage() {
-  return <LiveCommerce />;
-}
+import {redirect} from 'next/navigation';
+export default function Page(){redirect('/live');}

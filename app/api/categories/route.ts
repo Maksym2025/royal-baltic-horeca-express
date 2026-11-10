@@ -3,9 +3,10 @@ import { categories } from "@/db/schema";
 import { requireRestaurant } from "@/lib/server/auth";
 import { database, apiError } from "@/lib/server/db";
 import { privateJson } from "@/lib/server/http";
+import {coreEnabled,coreCategories} from "@/lib/server/commerce-core";
 export async function GET(req: Request) {
   try {
-    await requireRestaurant(req);
+    const restaurant=await requireRestaurant(req);if(coreEnabled())return Response.json(await coreCategories(restaurant.subject??restaurant.id));
     return privateJson(
       await database()
         .select()
@@ -17,3 +18,4 @@ export async function GET(req: Request) {
     return apiError(e);
   }
 }
+

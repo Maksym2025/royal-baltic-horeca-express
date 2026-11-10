@@ -1,5 +1,6 @@
 import {
   pgTable,
+  pgSchema,
   pgEnum,
   uuid,
   text,
@@ -42,7 +43,8 @@ export const paymentStatus = pgEnum("payment_status", [
 ]);
 
 // Better Auth core schema. IDs are text because Better Auth owns their generation.
-export const user = pgTable("user", {
+const identity=pgSchema("customer_auth");
+export const user = identity.table("user", {
   id: text().primaryKey(),
   role: userRole().notNull().default("CUSTOMER"),
   name: text().notNull(),
@@ -56,7 +58,7 @@ export const user = pgTable("user", {
     .notNull()
     .defaultNow(),
 });
-export const session = pgTable(
+export const session = identity.table(
   "session",
   {
     id: text().primaryKey(),
@@ -76,7 +78,7 @@ export const session = pgTable(
   },
   (t) => [index("session_user_id_idx").on(t.userId)],
 );
-export const account = pgTable(
+export const account = identity.table(
   "account",
   {
     id: text().primaryKey(),
@@ -105,7 +107,7 @@ export const account = pgTable(
   },
   (t) => [index("account_user_id_idx").on(t.userId)],
 );
-export const verification = pgTable(
+export const verification = identity.table(
   "verification",
   {
     id: text().primaryKey(),
@@ -291,3 +293,4 @@ export const stripeEvents = pgTable("stripe_events", {
     .notNull()
     .defaultNow(),
 });
+
