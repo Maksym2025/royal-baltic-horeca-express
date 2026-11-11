@@ -48,17 +48,6 @@ export function AuthFlow({
       setBusy(false);
     }
   }
-  async function google() {
-    setBusy(true);
-    setError("");
-    try {
-      const r = await signIn.social({ provider: "google", callbackURL: "/" });
-      if (r.error) throw new Error();
-    } catch {
-      setError(t("authError"));
-      setBusy(false);
-    }
-  }
   return (
     <main className="rb-auth">
       <section className="rb-auth-story">
@@ -74,20 +63,6 @@ export function AuthFlow({
         <h2>
           {t(companyMode ? "registerCompany" : signup ? "signUp" : "signIn")}
         </h2>
-        {!companyMode && (
-          <>
-            <button
-              className="rb-google"
-              type="button"
-              disabled={busy}
-              onClick={() => void google()}
-            >
-              <span aria-hidden="true">G</span>
-              {t("google")}
-            </button>
-            <p className="rb-divider">{t("or")}</p>
-          </>
-        )}
         <form onSubmit={submit}>
           {companyMode ? (
             <>
@@ -181,4 +156,5 @@ export function AuthFlow({
     </main>
   );
 }
+
 
