@@ -5,6 +5,8 @@ import { isLocale } from "@/lib/i18n/dictionaries";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./procurement.css";
+import "./design-fonts.css";
+import "./market.css";
 export const metadata: Metadata = {
   title: "Royal Baltic · HoReCa Express",
   description:
@@ -29,7 +31,7 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   const value = (await cookies()).get("rb_locale")?.value;
-  const locale = isLocale(value) ? value : "en";
+  const locale = isLocale(value) ? value : "fr";
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <body>
@@ -41,3 +43,4 @@ export default async function Layout({
     </html>
   );
 }
+
