@@ -39,7 +39,7 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
       <section className="rb-ocean-hero">
         <Image
           className="rb-ocean-image"
-          src="/images/horeca-hero.webp"
+          src="/images/product-0.jpg"
           alt=""
           fill
           sizes="100vw"
@@ -47,7 +47,7 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
         />
         <div className="rb-ocean-action">
           <p className="rb-eyebrow">{t("catalogIntro")}</p>
-          <h1>{locale === "fr" ? <>La mer.<br/>Votre cuisine.<br/><em>Tout simplement.</em></> : locale === "ru" ? <>Дары моря.<br/>Для вашей кухни.<br/><em>Просто и удобно.</em></> : <>From the sea.<br/>To your kitchen.<br/><em>Simply better.</em></>}</h1>
+          <h1>{locale === "fr" ? <>La mer.<br/>Votre cuisine.<br/><em>Tout simplement.</em></> : locale === "ru" ? <>Дары моря.<br/>Для вашей кухни.<br/><em>Просто и удобно.</em></> : locale === "ar" ? <>من البحر.<br/>إلى مطبخك.<br/><em>بكل بساطة.</em></> : <>From the sea.<br/>To your kitchen.<br/><em>Simply better.</em></>}</h1>
           <p>{c.intro}</p>
           <div className="rb-store-usps rb-hero-usps">
             <span>
@@ -138,10 +138,7 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
           {t("company")}
         </Link>
       </section>
-      <footer className="market-footer">
-        <svg viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 85C240 0 400 0 720 65S1200 135 1440 45V120H0Z" fill="currentColor"/></svg>
-        <div><h2>ROYAL BALTIC<small>HORECA EXPRESS</small></h2><p>{c.intro}</p><nav><Link href="/live">{t("catalog")}</Link><Link href="/account">{t("account")}</Link><Link href="/admin/login">Administration</Link><a href="mailto:sale@royal-baltic.com">sale@royal-baltic.com</a></nav><p>Royal Baltic &amp;Co OÜ · 09:00–18:00</p></div>
-      </footer>
+
     </main>
   );
 }

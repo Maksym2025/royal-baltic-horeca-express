@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { I18nProvider } from "@/components/i18n-provider";
+import { MarketFooter } from "@/components/market-footer";
 import { AppHeader } from "@/components/app-header";
 import { isLocale } from "@/lib/i18n/dictionaries";
 import type { Metadata, Viewport } from "next";
@@ -38,6 +39,7 @@ export default async function Layout({
         <I18nProvider initialLocale={locale}>
           <AppHeader />
           {children}
+          <MarketFooter />
         </I18nProvider>
       </body>
     </html>
