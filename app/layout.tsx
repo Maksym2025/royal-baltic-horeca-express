@@ -1,10 +1,13 @@
 import { cookies } from "next/headers";
 import { I18nProvider } from "@/components/i18n-provider";
+import { MarketFooter } from "@/components/market-footer";
 import { AppHeader } from "@/components/app-header";
 import { isLocale } from "@/lib/i18n/dictionaries";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./procurement.css";
+import "./design-fonts.css";
+import "./market.css";
 export const metadata: Metadata = {
   title: "Royal Baltic · HoReCa Express",
   description:
@@ -29,15 +32,17 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   const value = (await cookies()).get("rb_locale")?.value;
-  const locale = isLocale(value) ? value : "en";
+  const locale = isLocale(value) ? value : "fr";
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <body>
         <I18nProvider initialLocale={locale}>
           <AppHeader />
           {children}
+          <MarketFooter />
         </I18nProvider>
       </body>
     </html>
   );
 }
+
