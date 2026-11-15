@@ -24,6 +24,7 @@ export const shopCopy: Record<
     unknown: string;
   }
 > = {
+  de: {"chilled": "Gekühlt", "frozen": "Tiefgekühlt", "add": "In den Warenkorb", "added": "Hinzugefügt", "box": "Kartons", "perBox": "pro Karton", "delivery": "Lieferung in Frankreich", "deliveryText": "Kühltransport für Ihren Betrieb in Frankreich.", "boxes": "Kartonweise bestellen", "boxesText": "Ganze Kartons. Jeder Mengenschritt entspricht einer Verkaufseinheit.", "choose": "Produkte auswählen", "chooseText": "Preise ansehen und nach gekühlten oder tiefgekühlten Produkten filtern.", "fill": "Warenkorb zusammenstellen", "fillText": "Ganze Kartons in der gewünschten Menge hinzufügen.", "receive": "Lieferung vereinbaren", "receiveText": "Firmendaten und Lieferadresse in Frankreich eingeben.", "checkout": "Zur Kasse", "viewCart": "Warenkorb ansehen", "continue": "Weiter einkaufen", "unknown": "Lagerbedingungen auf Anfrage"},
   en: {
     chilled: "Chilled",
     frozen: "Frozen",

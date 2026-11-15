@@ -34,7 +34,7 @@ export function publicProduct(p: {
     images: [],
     storageCondition: productStorage(p),
     translations: Object.fromEntries(
-      ["fr", "en", "ru", "ar"]
+      ["fr", "en", "de", "ru", "ar"]
         .filter((l) => p.translations?.[l])
         .map((l) => [
           l,

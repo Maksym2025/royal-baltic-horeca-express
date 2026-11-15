@@ -9,6 +9,9 @@ export async function unifiedRegister(subject:string,input:unknown){try{return(a
 export async function unifiedSlots(subject:string):Promise<import("../live-api").LiveSlot[]>{return(await pool.query("select platform_delivery_slots($1) result",[subject])).rows[0].result;}
 
 
+export async function unifiedPublicImage(id:string):Promise<{content_type:string;data:Buffer}|null>{
+ return (await pool.query('select * from horeca_catalog_public_image($1)',[id])).rows[0]??null;
+}
 // Public catalog function has a fixed allowlist: no customer prices or supplier costs.
 export async function unifiedPublicCatalog():Promise<import('../live-api').LiveProduct[]>{
  return (await pool.query('select platform_public_catalog() result')).rows[0].result;

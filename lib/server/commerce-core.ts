@@ -1,4 +1,4 @@
-import {unifiedEnabled,unifiedCall} from "./unified";
+import {unifiedEnabled,unifiedCall,unifiedPublicCatalog} from "./unified";
 import type {LiveProduct,LiveOrder} from "@/lib/live-api";
 import {ApiError} from "./db";
 export const coreEnabled=()=>unifiedEnabled()||Boolean(process.env.COMMERCE_CORE_URL);
@@ -13,7 +13,8 @@ async function core<T>(path:string,subject:string,init:RequestInit={}):Promise<T
 type Product={vat_rate:number;id:string;name:string;species:string|null;product_form:string|null;pack_weight:string|number;effective_price:number;available_kg:number};
 export async function coreProducts(subject:string):Promise<LiveProduct[]>{
  const b=await core<{products:Product[]}>("/api/channel/catalog",subject);
- return b.products.map(p=>({id:p.id,title:p.name,category:p.species||"seafood",description:p.product_form,origin:null,species:p.species,unitWeight:p.pack_weight+" kg",imageUrl:null,images:[],translations:{},packageType:p.pack_weight+" kg carton",priceNetto:Math.round(p.effective_price*Number(p.pack_weight)*100),vatRate:Math.round(Number(p.vat_rate)*100),stock:Math.floor(p.available_kg/Number(p.pack_weight)),stockStatus:p.available_kg>0?"in_stock":"out_of_stock",active:true}));
+ const publicRows=unifiedEnabled()?new Map((await unifiedPublicCatalog()).map(p=>[p.id,p])):null;
+ return b.products.filter(p=>!publicRows||publicRows.has(p.id)).map(p=>({id:p.id,title:p.name,category:p.species||"seafood",description:p.product_form,origin:null,species:p.species,unitWeight:p.pack_weight+" kg",imageUrl:null,images:[],translations:{},packageType:p.pack_weight+" kg carton",...(publicRows?.get(p.id)??{}),priceNetto:Math.round(p.effective_price*Number(p.pack_weight)*100),vatRate:Math.round(Number(p.vat_rate)*100),stock:Math.floor(p.available_kg/Number(p.pack_weight)),stockStatus:p.available_kg>0?"in_stock":"out_of_stock",active:true}));
 }
 export async function coreCategories(subject:string){const products=await coreProducts(subject);return [...new Set(products.map(p=>p.category))].map(id=>({id,name:id,active:true,translations:{}}));}
 type CoreOrder={channel_context?:Record<string,string>;id:string;fulfillment_state:string;created_at:string;items:{productId:string;qty:number|string;unitPrice:number|string;packWeight:number|string;title:string;vatRate:number|null}[];payment_verified:boolean};
