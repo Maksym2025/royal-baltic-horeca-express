@@ -47,7 +47,7 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
         />
         <div className="rb-ocean-action">
           <p className="rb-eyebrow">{t("catalogIntro")}</p>
-          <h1>{locale === "fr" ? <>La mer.<br/>Votre cuisine.<br/><em>Tout simplement.</em></> : locale === "ru" ? <>Дары моря.<br/>Для вашей кухни.<br/><em>Просто и удобно.</em></> : locale === "ar" ? <>من البحر.<br/>إلى مطبخك.<br/><em>بكل بساطة.</em></> : <>From the sea.<br/>To your kitchen.<br/><em>Simply better.</em></>}</h1>
+          <h1>{locale === "de" ? <>Aus dem Meer.<br/>Für Ihre Küche.<br/><em>Einfach gut.</em></> : locale === "fr" ? <>La mer.<br/>Votre cuisine.<br/><em>Tout simplement.</em></> : locale === "ru" ? <>Дары моря.<br/>Для вашей кухни.<br/><em>Просто и удобно.</em></> : locale === "ar" ? <>من البحر.<br/>إلى مطبخك.<br/><em>بكل بساطة.</em></> : <>From the sea.<br/>To your kitchen.<br/><em>Simply better.</em></>}</h1>
           <p>{c.intro}</p>
           <div className="rb-store-usps rb-hero-usps">
             <span>
