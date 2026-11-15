@@ -11,7 +11,7 @@ import "./market.css";
 export const metadata: Metadata = {
   title: "Royal Baltic · HoReCa Express",
   description:
-    "Fisch und Meeresfrüchte für Ihre Küche. Der mobile B2B-Bestellkatalog von Royal Baltic.",
+    "Poissons et fruits de mer pour les professionnels. Catalogue et prix ouverts, commande par carton.",
   manifest: "/manifest.json",
   icons: { icon: "/icon-192.png", apple: "/icon-192.png" },
   appleWebApp: {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0a1728",
+  themeColor: "#12394a",
   viewportFit: "cover",
 };
 export default async function Layout({

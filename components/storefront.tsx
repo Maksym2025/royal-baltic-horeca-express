@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
+import { kilograms } from "@/lib/cart-math";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -252,7 +253,7 @@ export function Storefront({
             const qty = cart[p.id] || 0;
             return (
               <article className="rb-shop-product" key={p.id}>
-                <div className="rb-shop-photo">
+                <Link href={`/products/${p.id}`} className="rb-shop-photo" aria-label={title(p)}>
                   {p.imageUrl ? (
                     <Image
                       src={p.imageUrl}
@@ -273,7 +274,7 @@ export function Storefront({
                         ? c.frozen
                         : c.unknown}
                   </span>
-                </div>
+                </Link>
                 <div className="rb-shop-product-body">
                   <small>{p.origin || p.species || p.id}</small>
                   <h2><Link href={`/products/${p.id}`}>{title(p)}</Link></h2>
@@ -292,7 +293,7 @@ export function Storefront({
                       {t("net")}
                     </span>
                   </div>
-                  <small>{p.packageType} · {t("perPack")}{parseFloat(p.unitWeight || "") > 0 && <> · {money(p.priceNetto / parseFloat(p.unitWeight!))}/kg</>}</small>
+                  <small>{p.packageType} · {t("perPack")}{kilograms(p.unitWeight) !== null && <> · {money(p.priceNetto / kilograms(p.unitWeight)!)}/kg</>}</small>
                   <p className="rb-shop-availability">
                     {t(p.stock === 0 ? "out" : p.stock < 6 ? "low" : "stock")}
                   </p>

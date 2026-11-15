@@ -214,7 +214,7 @@ function CommerceSession({
     setNotice(t("reorderNote") + (unavailable ? " " + t("unavailable") : ""));
   }
   async function placeOrder() {
-    if (busy) return;
+    if (busy || (!pending.current && (invalidCart || !lines.length || !slot))) return;
     setBusy(true);
     setError(false);
     try {
