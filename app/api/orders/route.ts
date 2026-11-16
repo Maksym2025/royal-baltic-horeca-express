@@ -91,7 +91,7 @@ export async function POST(req: Request) {
         "Rechnung ist für diesen Betrieb nicht freigeschaltet.",
       );
     if(coreEnabled()){
-      const slot=unifiedEnabled()?(await unifiedSlots(r.subject)).find((s:any)=>s.id===body.deliverySlotId):(await database().select().from(deliverySlots).where(and(eq(deliverySlots.id,body.deliverySlotId),eq(deliverySlots.enabled,true),gt(deliverySlots.cutoffAt,new Date()))).limit(1))[0];
+      const slot=unifiedEnabled()?(await unifiedSlots(r.subject)).find((s)=>s.id===body.deliverySlotId):(await database().select().from(deliverySlots).where(and(eq(deliverySlots.id,body.deliverySlotId),eq(deliverySlots.enabled,true),gt(deliverySlots.cutoffAt,new Date()))).limit(1))[0];
       if(!slot)throw new ApiError(409,"Lieferfenster nicht mehr verfügbar.");
       return Response.json(await corePlaceOrder(r.subject??r.id,body,{deliveryDate:slot.deliveryDate,deliverySlotId:slot.id,window:slot.window,deliveryAddress:r.address,paymentMethod:body.paymentMethod}),{status:201,headers:{"Cache-Control":"private, no-store"}});
     }
@@ -120,4 +120,5 @@ export async function POST(req: Request) {
     return apiError(e);
   }
 }
+
 

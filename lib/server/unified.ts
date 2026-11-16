@@ -6,4 +6,13 @@ export async function unifiedCall<T>(subject:string,action:string,input:unknown=
 export async function unifiedCompany(subject:string){return(await pool.query('select platform_company($1) result',[subject])).rows[0].result;}
 export async function unifiedRegister(subject:string,input:unknown){try{return(await pool.query('select platform_register($1,$2) result',[subject,input])).rows[0].result;}catch(e){const m=e instanceof Error?e.message:'';throw new ApiError(/REVIEW|ALREADY/.test(m)?409:400,/^[A-Z_]+$/.test(m)?m:'COMPANY_REGISTRATION_FAILED');}}
 
-export async function unifiedSlots(subject:string):Promise<any[]>{return(await pool.query("select platform_delivery_slots($1) result",[subject])).rows[0].result;}
+export async function unifiedSlots(subject:string):Promise<import("../live-api").LiveSlot[]>{return(await pool.query("select platform_delivery_slots($1) result",[subject])).rows[0].result;}
+
+
+export async function unifiedPublicImage(id:string):Promise<{content_type:string;data:Buffer}|null>{
+ return (await pool.query('select * from horeca_catalog_public_image($1)',[id])).rows[0]??null;
+}
+// Public catalog function has a fixed allowlist: no customer prices or supplier costs.
+export async function unifiedPublicCatalog():Promise<import('../live-api').LiveProduct[]>{
+ return (await pool.query('select platform_public_catalog() result')).rows[0].result;
+}
