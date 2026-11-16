@@ -16,3 +16,8 @@ export async function unifiedPublicImage(id:string):Promise<{content_type:string
 export async function unifiedPublicCatalog():Promise<import('../live-api').LiveProduct[]>{
  return (await pool.query('select platform_public_catalog() result')).rows[0].result;
 }
+
+// Editorial data only: region-specific prices and stock ALWAYS come from platform_channel.
+export async function unifiedCardMetadata():Promise<import("../live-api").LiveProduct[]>{
+ return (await pool.query("select platform_horeca_card_metadata() result")).rows[0].result;
+}
