@@ -11,9 +11,9 @@ import {useI18n} from './i18n-provider';
 import {shopCopy} from './shop-copy';
 export function ProductDetail({id}:{id:string}){
  const {locale,t}=useI18n(),c=shopCopy[locale];const {data:session,isPending}=useSession();const [photo,setPhoto]=useState(0);const [product,setProduct]=useState<LiveProduct|null>(null),[loading,setLoading]=useState(true),[failed,setFailed]=useState(false),[quantity,setQuantity]=useState(1),[added,setAdded]=useState(false),[locked,setLocked]=useState(false);
- useEffect(()=>{let active=true;fetch('/api/catalog').then(async r=>{if(!r.ok)throw Error();return await r.json() as LiveProduct[]}).then(rows=>{if(active)setProduct(rows.find(p=>p.id===id)||null)}).catch(()=>{if(active)setFailed(true)}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[id]);
+ useEffect(()=>{if(isPending)return;let active=true;const endpoint=session?.user?'/api/products':'/api/catalog';fetch(endpoint,{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error();return await r.json() as LiveProduct[]}).then(rows=>{if(active){setProduct(rows.find(p=>p.id===id)||null);setFailed(false)}}).catch(()=>{if(active){setFailed(true);setProduct(null)}}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[id,isPending,session?.user?.id]);
  const money=(n:number)=>new Intl.NumberFormat(locale,{style:'currency',currency:'EUR'}).format(n/100);
- if(loading)return <main className="rb-state" role="status">{t('loading')}</main>;
+ if(loading||isPending)return <main className="rb-state" role="status">{t('loading')}</main>;
  if(!product)return <main className="rb-state"><h1>{t(failed?'error':'noProducts')}</h1><Link href="/live">{c.continue}</Link></main>;
  const photos=product.images?.length?product.images.map(i=>i.url):product.imageUrl?[product.imageUrl]:[];
  const p=product,title=p.translations?.[locale]?.title||p.title,kg=kilograms(p.unitWeight);
