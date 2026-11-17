@@ -45,6 +45,7 @@ export function Storefront({
   const [storage, setStorage] = useState<StorageCondition | "">("");
   const [category, setCategory] = useState("");
   const [query, setQuery] = useState("");
+  useEffect(()=>{const params=new URLSearchParams(window.location.search);setQuery(params.get("q")||"");setCategory(params.get("category")||"");},[]);
   const [view, setView] = useState<"grid" | "quick">("grid");
   const viewLabels = locale === "ru" ? ["Плитка", "Быстрый заказ"] : locale === "fr" ? ["Grille", "Commande rapide"] : locale === "de" ? ["Kacheln", "Schnellbestellung"] : ["Grid", "Quick order"];
   const [sort, setSort] = useState("name");
@@ -112,7 +113,7 @@ export function Storefront({
       (!basket || (cart[p.id] || 0) > 0) &&
       (!storage || productStorage(p) === storage) &&
       (!category || p.category === category) &&
-      `${title(p)} ${p.id}`
+      `${title(p)} ${p.id} ${p.species||""} ${p.description||""}`
         .toLocaleLowerCase(locale)
         .includes(query.trim().toLocaleLowerCase(locale)),
   );
@@ -293,12 +294,12 @@ export function Storefront({
                     )}
                   </p>
                   <div className="rb-shop-price">
-                    <strong>{money(p.priceNetto)}</strong>
+                    <strong>{p.priceNetto>0?money(p.priceNetto):(locale==='ru'?'Цена уточняется':locale==='de'?'Preis auf Anfrage':locale==='fr'?'Prix sur demande':'Price on request')}</strong>
                     <span>
                       {t("net")}
                     </span>
                   </div>
-                  <small>{p.packageType} · {t("perPack")}{kilograms(p.unitWeight) !== null && <> · {money(p.priceNetto / kilograms(p.unitWeight)!)}/kg</>}</small>
+                  <small>{p.packageType} · {t("perPack")}{p.priceNetto>0 && kilograms(p.unitWeight) !== null && <> · {money(p.priceNetto / kilograms(p.unitWeight)!)}/kg</>}</small>
                   <p className="rb-shop-availability">
                     {t(p.stock === 0 ? "out" : p.stock < 6 ? "low" : "stock")}
                   </p>
