@@ -13,6 +13,7 @@ import { useI18n } from "./i18n-provider";
 import { Storefront } from "./storefront";
 import { shopCopy } from "./shop-copy";
 import { designCopy } from "./design-copy";
+import { MarketSections } from "./market-sections";
 import { heroCopy } from "./hero-copy";
 export function CatalogButton() {
   const { locale } = useI18n();
@@ -25,7 +26,7 @@ export function CatalogButton() {
     </Link>
   );
 }
-export function LandingHero({ welcome = false }: { welcome?: boolean }) {
+export function LandingHero({ welcome = false, preview = false }: { welcome?: boolean; preview?: boolean }) {
   const { t, locale } = useI18n();
   const c = designCopy[locale];
   const hero = heroCopy[locale === "ar" ? "en" : locale];
@@ -45,8 +46,7 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
           <h1>{hero.title}</h1>
           <p className="rb-captain-subtitle">{hero.subtitle}</p>
           <div className="rb-captain-ctas">
-            <a className="rb-motion-cta" href={"mailto:sale@royal-baltic.com?subject="+encodeURIComponent(hero.primary)}>{hero.primary}<ArrowUpRight size={20}/></a>
-            <Link className="rb-captain-secondary" href="/live">{hero.secondary}<ArrowUpRight size={20}/></Link>
+            <Link className="rb-captain-secondary rb-catalog-glow" href="/live">{hero.secondary}<ArrowUpRight size={20}/></Link>
           </div>
         </div>
         <div className="rb-captain-trust">{hero.trust.map((label,index)=>{const Icon=[Truck,Thermometer,Fish,Package][index];return <div key={label}><Icon size={22} aria-hidden="true"/><span>{label}</span></div>})}</div>
@@ -54,7 +54,8 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
       {!welcome && (
         <>
           <section className="market-range" aria-label={c.selection}>{[["salmon",0],["seafood",1],["whitefish",2],["roe",3]].map(([key,i])=><Link href="/live" key={key}><Image src={`/images/product-${i}.jpg`} alt="" width={360} height={240}/><span>{c[key as "salmon"]} ↗</span></Link>)}</section>
-          <section className="rb-home-shortcuts" aria-label={t("orders")}>
+          {preview && <MarketSections/>}
+          {!preview && <><section className="rb-home-shortcuts" aria-label={t("orders")}>
             <Link href="/account?view=orders">
               <Repeat2 aria-hidden="true" />
               <span>
@@ -72,10 +73,10 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
           </section>
           <section className="rb-home-section">
             <Storefront featured />
-          </section>
+          </section></>}
         </>
       )}
-      <section className="rb-home-section">
+      {!preview && <><section className="rb-home-section">
         <h2>{c.why}</h2>
         <div className="rb-benefits">
           {benefits.map(([Icon, title, text]) => (
@@ -116,8 +117,9 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
         <Link href="mailto:sale@royal-baltic.com" className="rb-text-button">
           {t("company")}
         </Link>
-      </section>
+      </section></>}
 
     </main>
   );
 }
+

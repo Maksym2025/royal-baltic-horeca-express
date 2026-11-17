@@ -45,7 +45,8 @@ export function Storefront({
   const [storage, setStorage] = useState<StorageCondition | "">("");
   const [category, setCategory] = useState("");
   const [query, setQuery] = useState("");
-  useEffect(()=>{const params=new URLSearchParams(window.location.search);setQuery(params.get("q")||"");setCategory(params.get("category")||"");},[]);
+  const [view, setView] = useState<"grid" | "quick">("grid");
+  const viewLabels = locale === "ru" ? ["Плитка", "Быстрый заказ"] : locale === "fr" ? ["Grille", "Commande rapide"] : locale === "de" ? ["Kacheln", "Schnellbestellung"] : ["Grid", "Quick order"];
   const [sort, setSort] = useState("name");
   const [notice, setNotice] = useState("");
   const load = useCallback(async () => {
@@ -111,7 +112,7 @@ export function Storefront({
       (!basket || (cart[p.id] || 0) > 0) &&
       (!storage || productStorage(p) === storage) &&
       (!category || p.category === category) &&
-      `${title(p)} ${p.id} ${p.species||""} ${p.description||""}`
+      `${title(p)} ${p.id}`
         .toLocaleLowerCase(locale)
         .includes(query.trim().toLocaleLowerCase(locale)),
   );
@@ -231,6 +232,9 @@ export function Storefront({
       <p className="sr-only" role="status">
         {notice}
       </p>
+      {!featured && !basket && <div className="rb-view-switch" role="group" aria-label={t("catalog")}>
+        {(["grid", "quick"] as const).map((mode, i) => <button key={mode} type="button" aria-pressed={view === mode} onClick={() => setView(mode)}>{viewLabels[i]}</button>)}
+      </div>}
       {loading ? (
         <div className="rb-store-loading" role="status">
           {t("loading")}
@@ -248,7 +252,7 @@ export function Storefront({
           </button>
         </div>
       ) : (
-        <div className="rb-shop-grid">
+        <div className={view === "quick" && !featured && !basket ? "rb-shop-grid rb-quick-list" : "rb-shop-grid"}>
           {shown.map((p) => {
             const state = productStorage(p);
             const qty = cart[p.id] || 0;
@@ -289,12 +293,12 @@ export function Storefront({
                     )}
                   </p>
                   <div className="rb-shop-price">
-                    <strong>{p.priceNetto>0?money(p.priceNetto):(locale==='ru'?'Цена уточняется':locale==='de'?'Preis auf Anfrage':locale==='fr'?'Prix sur demande':'Price on request')}</strong>
+                    <strong>{money(p.priceNetto)}</strong>
                     <span>
                       {t("net")}
                     </span>
                   </div>
-                  <small>{p.packageType} · {t("perPack")}{p.priceNetto>0 && kilograms(p.unitWeight) !== null && <> · {money(p.priceNetto / kilograms(p.unitWeight)!)}/kg</>}</small>
+                  <small>{p.packageType} · {t("perPack")}{kilograms(p.unitWeight) !== null && <> · {money(p.priceNetto / kilograms(p.unitWeight)!)}/kg</>}</small>
                   <p className="rb-shop-availability">
                     {t(p.stock === 0 ? "out" : p.stock < 6 ? "low" : "stock")}
                   </p>
