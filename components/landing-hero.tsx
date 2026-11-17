@@ -13,6 +13,7 @@ import { useI18n } from "./i18n-provider";
 import { Storefront } from "./storefront";
 import { shopCopy } from "./shop-copy";
 import { designCopy } from "./design-copy";
+import { heroCopy } from "./hero-copy";
 export function CatalogButton() {
   const { locale } = useI18n();
   return (
@@ -27,6 +28,7 @@ export function CatalogButton() {
 export function LandingHero({ welcome = false }: { welcome?: boolean }) {
   const { t, locale } = useI18n();
   const c = designCopy[locale];
+  const hero = heroCopy[locale === "ar" ? "en" : locale];
   const shop = shopCopy[locale];
   const benefits = [
     [Fish, c.fish, c.fishText],
@@ -36,41 +38,18 @@ export function LandingHero({ welcome = false }: { welcome?: boolean }) {
   ] as const;
   return (
     <main className="rb-landing">
-      <section className="rb-ocean-hero">
-        <Image
-          className="rb-ocean-image"
-          src="/images/product-0.jpg"
-          alt=""
-          fill
-          sizes="100vw"
-          priority
-        />
+      <section className="rb-ocean-hero rb-captain-hero">
+        <Image className="rb-ocean-image" src="/images/captain-clean.jpg" alt="" fill sizes="100vw" priority/>
         <div className="rb-ocean-action">
-          <p className="rb-eyebrow">{t("catalogIntro")}</p>
-          <h1>{locale === "de" ? <>Aus dem Meer.<br/>Für Ihre Küche.<br/><em>Einfach gut.</em></> : locale === "fr" ? <>La mer.<br/>Votre cuisine.<br/><em>Tout simplement.</em></> : locale === "ru" ? <>Дары моря.<br/>Для вашей кухни.<br/><em>Просто и удобно.</em></> : locale === "ar" ? <>من البحر.<br/>إلى مطبخك.<br/><em>بكل بساطة.</em></> : <>From the sea.<br/>To your kitchen.<br/><em>Simply better.</em></>}</h1>
-          <p>{c.intro}</p>
-          <div className="rb-store-usps rb-hero-usps">
-            <span>
-              <Truck size={18} />
-              {shop.delivery}
-            </span>
-            <span>
-              <Package size={18} />
-              {shop.boxes}
-            </span>
+          <p className="rb-eyebrow">{hero.badge}</p>
+          <h1>{hero.title}</h1>
+          <p className="rb-captain-subtitle">{hero.subtitle}</p>
+          <div className="rb-captain-ctas">
+            <a className="rb-motion-cta" href={"mailto:sale@royal-baltic.com?subject="+encodeURIComponent(hero.primary)}>{hero.primary}<ArrowUpRight size={20}/></a>
+            <Link className="rb-captain-secondary" href="/live">{hero.secondary}<ArrowUpRight size={20}/></Link>
           </div>
-          <CatalogButton />
-          {welcome && (
-            <div className="rb-welcome-actions">
-              <Link href="/register" className="rb-primary">
-                {c.register}
-              </Link>
-              <Link href="/sign-in" className="rb-secondary">
-                {t("signIn")}
-              </Link>
-            </div>
-          )}
         </div>
+        <div className="rb-captain-trust">{hero.trust.map((label,index)=>{const Icon=[Truck,Thermometer,Fish,Package][index];return <div key={label}><Icon size={22} aria-hidden="true"/><span>{label}</span></div>})}</div>
       </section>
       {!welcome && (
         <>
