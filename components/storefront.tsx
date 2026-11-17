@@ -45,6 +45,7 @@ export function Storefront({
   const [storage, setStorage] = useState<StorageCondition | "">("");
   const [category, setCategory] = useState("");
   const [query, setQuery] = useState("");
+  useEffect(()=>{const params=new URLSearchParams(window.location.search);setQuery(params.get("q")||"");setCategory(params.get("category")||"");},[]);
   const [sort, setSort] = useState("name");
   const [notice, setNotice] = useState("");
   const load = useCallback(async () => {
@@ -110,7 +111,7 @@ export function Storefront({
       (!basket || (cart[p.id] || 0) > 0) &&
       (!storage || productStorage(p) === storage) &&
       (!category || p.category === category) &&
-      `${title(p)} ${p.id}`
+      `${title(p)} ${p.id} ${p.species||""} ${p.description||""}`
         .toLocaleLowerCase(locale)
         .includes(query.trim().toLocaleLowerCase(locale)),
   );
