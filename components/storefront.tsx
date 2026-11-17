@@ -288,12 +288,12 @@ export function Storefront({
                     )}
                   </p>
                   <div className="rb-shop-price">
-                    <strong>{money(p.priceNetto)}</strong>
+                    <strong>{p.priceNetto>0?money(p.priceNetto):(locale==='ru'?'Цена уточняется':locale==='de'?'Preis auf Anfrage':locale==='fr'?'Prix sur demande':'Price on request')}</strong>
                     <span>
                       {t("net")}
                     </span>
                   </div>
-                  <small>{p.packageType} · {t("perPack")}{kilograms(p.unitWeight) !== null && <> · {money(p.priceNetto / kilograms(p.unitWeight)!)}/kg</>}</small>
+                  <small>{p.packageType} · {t("perPack")}{p.priceNetto>0 && kilograms(p.unitWeight) !== null && <> · {money(p.priceNetto / kilograms(p.unitWeight)!)}/kg</>}</small>
                   <p className="rb-shop-availability">
                     {t(p.stock === 0 ? "out" : p.stock < 6 ? "low" : "stock")}
                   </p>
