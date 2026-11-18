@@ -27,9 +27,11 @@ import { shopCopy } from "./shop-copy";
 export function Storefront({
   featured = false,
   basket = false,
+  selection,
 }: {
   featured?: boolean;
   basket?: boolean;
+  selection?: string[];
 }) {
   const { t, locale } = useI18n();
   const c = shopCopy[locale];
@@ -110,6 +112,7 @@ export function Storefront({
     }).format(n / 100);
   const filtered = products.filter(
     (p) =>
+      (!selection || selection.includes(p.id)) &&
       (!basket || (cart[p.id] || 0) > 0) &&
       (!storage || productStorage(p) === storage) &&
       (!category || p.category === category) &&
@@ -371,3 +374,4 @@ export function Storefront({
     </section>
   );
 }
+

@@ -1,0 +1,5 @@
+import {publicComments,submitComment} from '@/lib/server/content';
+import {requireUser,assertSameOrigin} from '@/lib/server/auth';
+export const dynamic='force-dynamic';
+export async function GET(_:Request,{params}:{params:Promise<{slug:string}>}){try{return Response.json(await publicComments((await params).slug),{headers:{'Cache-Control':'no-store'}});}catch{return Response.json({error:'UNAVAILABLE'},{status:503});}}
+export async function POST(req:Request,{params}:{params:Promise<{slug:string}>}){try{assertSameOrigin(req);const u=await requireUser(req);const raw=await req.text();if(raw.length>10000)return Response.json({error:'INVALID_COMMENT'},{status:400});const b=JSON.parse(raw);if(typeof b.body!=='string')return Response.json({error:'INVALID_COMMENT'},{status:400});await submitComment(u.id,(await params).slug,b.body);return Response.json({status:'pending'},{status:201});}catch(e){const m=e instanceof Error?e.message:'';return Response.json({error:/RATE_LIMITED|DUPLICATE_COMMENT|COMMENTS_CLOSED|INVALID_COMMENT/.test(m)?m:'SIGN_IN_OR_RETRY'},{status:/RATE_LIMITED/.test(m)?429:/Authentication/.test(m)?401:400});}}
