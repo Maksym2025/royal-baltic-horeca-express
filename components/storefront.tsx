@@ -120,7 +120,7 @@ export function Storefront({
         .toLocaleLowerCase(locale)
         .includes(query.trim().toLocaleLowerCase(locale)),
   );
-  filtered.sort((a,b) => sort === "price" ? a.priceNetto-b.priceNetto : title(a).localeCompare(title(b),locale));
+  filtered.sort((a,b) => Number(b.stock > 0) - Number(a.stock > 0) || (sort === "price" ? a.priceNetto-b.priceNetto : title(a).localeCompare(title(b),locale)));
   const shown = featured ? filtered.slice(0, 4) : filtered;
   const lines = products.filter((p) => (cart[p.id] || 0) > 0);
   const count = Object.values(cart).reduce((a, b) => a + b, 0);
@@ -263,9 +263,9 @@ export function Storefront({
             return (
               <article className="rb-shop-product" key={p.id}>
                 <Link href={`/products/${p.id}`} className="rb-shop-photo" aria-label={title(p)}>
-                  {p.imageUrl ? (
+                  {(p.imageUrl || ["Salmon","Seafood","Whitefish","Roe"].includes(p.category)) ? (
                     <Image
-                      src={p.imageUrl}
+                      src={p.imageUrl || `/images/product-${["Salmon","Seafood","Whitefish","Roe"].indexOf(p.category)}.jpg`}
                       alt={title(p)}
                       width={600}
                       height={400}
@@ -303,7 +303,7 @@ export function Storefront({
                     </span>
                   </div>
                   <small>{p.packageType} · {t("perPack")}{p.priceNetto>0 && kilograms(p.unitWeight) !== null && <> · {money(p.priceNetto / kilograms(p.unitWeight)!)}/kg</>}</small>
-                  <p className="rb-shop-availability">
+                  <p className={"rb-shop-availability"+(p.stock<=0?" rb-stock-empty":"")}>
                     {t(p.stock === 0 ? "out" : p.stock < 6 ? "low" : "stock")}
                   </p>
                   {qty > 0 ? (

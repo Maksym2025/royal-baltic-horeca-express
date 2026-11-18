@@ -53,7 +53,7 @@ export function LandingHero({ welcome = false, preview = false }: { welcome?: bo
       </section>
       {!welcome && (
         <>
-          <section className="market-range" aria-label={c.selection}>{[["salmon",0],["seafood",1],["whitefish",2],["roe",3]].map(([key,i])=><Link href="/live" key={key}><Image src={`/images/product-${i}.jpg`} alt="" width={360} height={240}/><span>{c[key as "salmon"]} ↗</span></Link>)}</section>
+          <section className="market-range" aria-label={c.selection}>{[["salmon",0],["seafood",1],["whitefish",2],["roe",3]].map(([key,i])=><Link href={"/live?category="+({salmon:"Salmon",seafood:"Seafood",whitefish:"Whitefish",roe:"Roe"}[String(key)]||"")} key={key}><Image src={`/images/product-${i}.jpg`} alt="" width={360} height={240}/><span>{c[key as "salmon"]} ↗</span></Link>)}</section>
           {preview && <MarketSections/>}
           {!preview && <><section className="rb-home-shortcuts" aria-label={t("orders")}>
             <Link href="/account?view=orders">
