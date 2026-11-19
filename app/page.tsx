@@ -1,4 +1,4 @@
 import { LandingHero } from "@/components/landing-hero";
 export default function HomePage() {
-  return <LandingHero />;
+  return <LandingHero preview />;
 }

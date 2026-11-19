@@ -8,6 +8,7 @@ import "./globals.css";
 import "./procurement.css";
 import "./design-fonts.css";
 import "./market.css";
+import "./buyer.css";
 export const metadata: Metadata = {
   title: "Royal Baltic · HoReCa Express",
   description:
