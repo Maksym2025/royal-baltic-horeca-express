@@ -52,3 +52,13 @@
 .rb-editorial-banner:not(:has(>img)){grid-template-columns:1fr}.rb-recipe-grid article:not(:has(>img)){border-top:4px solid #269ac1}
 
 .rb-shop-product .rb-stock-empty{display:table;width:fit-content;padding:4px 10px;border-radius:12px;background:#edf0f3;color:#455568;font-weight:650}
+
+.rb-recipe-grid article:only-child:has(>img){grid-column:1/-1;display:grid;grid-template-columns:1.25fr 1fr;background:#faf7f0;color:#143943;border:0}
+.rb-recipe-grid article:only-child>img{height:100%;max-height:450px;aspect-ratio:1.5}
+.rb-recipe-grid article:only-child>div{align-self:center;padding:clamp(24px,4vw,64px)}
+.rb-recipe-grid h3,.rb-recipe-article h1{font-family:Georgia,serif;font-weight:500;line-height:1.12;text-wrap:balance}
+.rb-recipe-grid article:only-child h3{font-size:clamp(28px,3.3vw,48px);margin:16px 0}
+.rb-recipe-grid article>div>a{display:inline-block;margin-top:16px;border-bottom:1px solid currentColor}
+.rb-chef-method{list-style:none;padding:0}.rb-chef-method li{overflow:hidden;border-bottom:1px solid #c9d6d6;padding-bottom:20px}
+.rb-chef-method img{width:100%;aspect-ratio:1.8;object-fit:cover;border-radius:10px}.rb-chef-method li>div{display:flex;align-items:baseline;gap:16px;margin-top:12px}.rb-chef-method b{font:28px Georgia,serif;color:#176762}
+@media(max-width:700px){.rb-recipe-grid article:only-child:has(>img){grid-template-columns:1fr}.rb-recipe-grid article:only-child>img{height:auto}}
