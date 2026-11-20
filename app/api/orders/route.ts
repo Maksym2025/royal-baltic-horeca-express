@@ -68,6 +68,7 @@ export async function GET(req: Request) {
     return apiError(e);
   }
 }
+import {announcedProducts} from "@/lib/server/product-intent";
 export async function POST(req: Request) {
   try {
     assertSameOrigin(req);
@@ -83,6 +84,8 @@ export async function POST(req: Request) {
     const valid = requestSchema.safeParse(parsed);
     if (!valid.success) throw new ApiError(400, "Ungültige Bestelldaten.");
     const body = valid.data;
+    const announcements=await announcedProducts();
+    if(body.items.some(i=>announcements.some(p=>p.id===i.productId)))throw new ApiError(409,"PREORDER_USE_RESERVATION");
     if (new Set(body.items.map((i) => i.productId)).size !== body.items.length)
       throw new ApiError(400, "Doppelte Artikel.");
     if (body.paymentMethod === "invoice" && r.paymentTerms !== "INVOICE_7_DAYS")

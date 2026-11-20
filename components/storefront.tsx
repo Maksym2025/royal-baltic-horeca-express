@@ -23,6 +23,8 @@ import {
   type StorageCondition,
 } from "@/lib/product-storage";
 import { useI18n } from "./i18n-provider";
+import { useProductIntent } from "./product-intent-provider";
+import { DemandHeart, PreorderControl, IntentFeedback } from "./product-intent";
 import { shopCopy } from "./shop-copy";
 export function Storefront({
   featured = false,
@@ -35,6 +37,7 @@ export function Storefront({
 }) {
   const { t, locale } = useI18n();
   const c = shopCopy[locale];
+  const intent = useProductIntent();
   const { data: session, isPending } = useSession();
   const userId = session?.user.id || "guest";
   const [products, setProducts] = useState<LiveProduct[]>([]);
@@ -47,7 +50,13 @@ export function Storefront({
   const [storage, setStorage] = useState<StorageCondition | "">("");
   const [category, setCategory] = useState("");
   const [query, setQuery] = useState("");
-  useEffect(()=>{const params=new URLSearchParams(window.location.search);setQuery(params.get("q")||"");setCategory(params.get("category")||"");},[]);
+  useEffect(()=>{
+    const params=new URLSearchParams(window.location.search);
+    // The external URL supplies the initial filters after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setQuery(params.get("q")||"");
+    setCategory(params.get("category")||"");
+  },[]);
   const [view, setView] = useState<"grid" | "quick">("grid");
   const viewLabels = locale === "ru" ? ["Плитка", "Быстрый заказ"] : locale === "fr" ? ["Grille", "Commande rapide"] : locale === "de" ? ["Kacheln", "Schnellbestellung"] : ["Grid", "Quick order"];
   const [sort, setSort] = useState("name");
@@ -233,6 +242,7 @@ export function Storefront({
           {t("orderLocked")} <Link href="/checkout">{c.checkout}</Link>
         </p>
       )}
+      {!featured && <IntentFeedback />}
       <p className="sr-only" role="status">
         {notice}
       </p>
@@ -260,6 +270,7 @@ export function Storefront({
           {shown.map((p) => {
             const state = productStorage(p);
             const qty = cart[p.id] || 0;
+            const announcement = intent.data.products.find(x => x.id === p.id);
             return (
               <article className="rb-shop-product" key={p.id}>
                 <Link href={`/products/${p.id}`} className="rb-shop-photo" aria-label={title(p)}>
@@ -306,7 +317,7 @@ export function Storefront({
                   <p className={"rb-shop-availability"+(p.stock<=0?" rb-stock-empty":"")}>
                     {t(p.stock === 0 ? "out" : p.stock < 6 ? "low" : "stock")}
                   </p>
-                  {qty > 0 ? (
+                  {announcement?.launchMode === "preorder" ? <PreorderControl product={announcement} /> : p.stock === 0 && !basket ? <DemandHeart productId={p.id} /> : qty > 0 ? (
                     <div className="rb-shop-in-basket">
                       <div className="rb-quantity">
                         <button

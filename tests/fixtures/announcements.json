@@ -1,0 +1,182 @@
+[
+  {
+    "id": "a801b313-f911-4444-8000-000000000001",
+    "sku": "HX-PREVIEW-TR250",
+    "title": "Œufs de truite",
+    "category": "Roe",
+    "description": "Bocal en verre · 250 g",
+    "origin": null,
+    "species": "Roe",
+    "unitWeight": "0.25 kg",
+    "packageType": "Bocal en verre · 250 g",
+    "packageTranslations": {
+      "fr": "Bocal en verre · 250 g",
+      "en": "Glass jar · 250 g",
+      "de": "Glas · 250 g",
+      "ru": "Стеклянная банка · 250 г"
+    },
+    "imageUrl": "/images/product-3.jpg",
+    "images": [],
+    "translations": {
+      "fr": {
+        "title": "Œufs de truite",
+        "description": "Bocal en verre · 250 g"
+      },
+      "en": {
+        "title": "Trout roe",
+        "description": "Glass jar · 250 g"
+      },
+      "de": {
+        "title": "Forellenkaviar",
+        "description": "Glas · 250 g"
+      },
+      "ru": {
+        "title": "Икра форели",
+        "description": "Стеклянная банка · 250 г"
+      }
+    },
+    "priceNetto": 2490,
+    "vatRate": 0,
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "active": true,
+    "launchMode": "preorder",
+    "expectedAt": "2026-12-03",
+    "demandThreshold": 20
+  },
+  {
+    "id": "a801b313-f911-4444-8000-000000000002",
+    "sku": "HX-PREVIEW-TR500",
+    "title": "Œufs de truite",
+    "category": "Roe",
+    "description": "Boîte plastique · 500 g",
+    "origin": null,
+    "species": "Roe",
+    "unitWeight": "0.5 kg",
+    "packageType": "Boîte plastique · 500 g",
+    "packageTranslations": {
+      "fr": "Boîte plastique · 500 g",
+      "en": "Plastic tub · 500 g",
+      "de": "Kunststoffdose · 500 g",
+      "ru": "Пластиковый контейнер · 500 г"
+    },
+    "imageUrl": "/images/product-3.jpg",
+    "images": [],
+    "translations": {
+      "fr": {
+        "title": "Œufs de truite",
+        "description": "Boîte plastique · 500 g"
+      },
+      "en": {
+        "title": "Trout roe",
+        "description": "Plastic tub · 500 g"
+      },
+      "de": {
+        "title": "Forellenkaviar",
+        "description": "Kunststoffdose · 500 g"
+      },
+      "ru": {
+        "title": "Икра форели",
+        "description": "Пластиковый контейнер · 500 г"
+      }
+    },
+    "priceNetto": 4490,
+    "vatRate": 0,
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "active": true,
+    "launchMode": "preorder",
+    "expectedAt": "2026-12-03",
+    "demandThreshold": 20
+  },
+  {
+    "id": "a801b313-f911-4444-8000-000000000003",
+    "sku": "HX-PREVIEW-SA200",
+    "title": "Œufs de saumon",
+    "category": "Roe",
+    "description": "Bocal en verre · 200 g",
+    "origin": null,
+    "species": "Roe",
+    "unitWeight": "0.2 kg",
+    "packageType": "Bocal en verre · 200 g",
+    "packageTranslations": {
+      "fr": "Bocal en verre · 200 g",
+      "en": "Glass jar · 200 g",
+      "de": "Glas · 200 g",
+      "ru": "Стеклянная банка · 200 г"
+    },
+    "imageUrl": "/images/product-3.jpg",
+    "images": [],
+    "translations": {
+      "fr": {
+        "title": "Œufs de saumon",
+        "description": "Bocal en verre · 200 g"
+      },
+      "en": {
+        "title": "Salmon roe",
+        "description": "Glass jar · 200 g"
+      },
+      "de": {
+        "title": "Lachskaviar",
+        "description": "Glas · 200 g"
+      },
+      "ru": {
+        "title": "Икра лосося",
+        "description": "Стеклянная банка · 200 г"
+      }
+    },
+    "priceNetto": 2990,
+    "vatRate": 0,
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "active": true,
+    "launchMode": "preorder",
+    "expectedAt": "2026-12-03",
+    "demandThreshold": 20
+  },
+  {
+    "id": "a801b313-f911-4444-8000-000000000004",
+    "sku": "HX-PREVIEW-HER5",
+    "title": "Hareng de la Baltique fumé",
+    "category": "Whitefish",
+    "description": "Caisse · 5 kg",
+    "origin": null,
+    "species": "Whitefish",
+    "unitWeight": "5 kg",
+    "packageType": "Caisse · 5 kg",
+    "packageTranslations": {
+      "fr": "Caisse · 5 kg",
+      "en": "Box · 5 kg",
+      "de": "Kiste · 5 kg",
+      "ru": "Ящик · 5 кг"
+    },
+    "imageUrl": "/images/coming-smoked-herring.webp",
+    "images": [],
+    "translations": {
+      "fr": {
+        "title": "Hareng de la Baltique fumé",
+        "description": "Caisse · 5 kg"
+      },
+      "en": {
+        "title": "Smoked Baltic herring",
+        "description": "Box · 5 kg"
+      },
+      "de": {
+        "title": "Geräucherter Ostseehering",
+        "description": "Kiste · 5 kg"
+      },
+      "ru": {
+        "title": "Салака копчёная",
+        "description": "Ящик · 5 кг"
+      }
+    },
+    "priceNetto": 3990,
+    "vatRate": 0,
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "active": true,
+    "launchMode": "preorder",
+    "expectedAt": "2026-12-03",
+    "demandThreshold": 20
+  }
+]

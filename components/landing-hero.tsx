@@ -14,6 +14,7 @@ import { Storefront } from "./storefront";
 import { shopCopy } from "./shop-copy";
 import { designCopy } from "./design-copy";
 import { MarketSections } from "./market-sections";
+import { UpcomingProducts } from "./product-intent";
 import { heroCopy } from "./hero-copy";
 export function CatalogButton() {
   const { locale } = useI18n();
@@ -51,6 +52,7 @@ export function LandingHero({ welcome = false, preview = false }: { welcome?: bo
         </div>
         <div className="rb-captain-trust">{hero.trust.map((label,index)=>{const Icon=[Truck,Thermometer,Fish,Package][index];return <div key={label}><Icon size={22} aria-hidden="true"/><span>{label}</span></div>})}</div>
       </section>
+      {!welcome && <UpcomingProducts />}
       {!welcome && (
         <>
           <section className="market-range" aria-label={c.selection}>{[["salmon",0],["seafood",1],["whitefish",2],["roe",3]].map(([key,i])=><Link href={"/live?category="+({salmon:"Salmon",seafood:"Seafood",whitefish:"Whitefish",roe:"Roe"}[String(key)]||"")} key={key}><Image src={`/images/product-${i}.jpg`} alt="" width={360} height={240}/><span>{c[key as "salmon"]} ↗</span></Link>)}</section>

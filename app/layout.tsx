@@ -9,6 +9,8 @@ import "./procurement.css";
 import "./design-fonts.css";
 import "./market.css";
 import "./buyer.css";
+import "./product-intent.css";
+import { ProductIntentProvider } from "@/components/product-intent-provider";
 export const metadata: Metadata = {
   title: "Royal Baltic · HoReCa Express",
   description:
@@ -38,9 +40,11 @@ export default async function Layout({
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <body>
         <I18nProvider initialLocale={locale}>
+          <ProductIntentProvider>
           <AppHeader />
           {children}
           <MarketFooter />
+          </ProductIntentProvider>
         </I18nProvider>
       </body>
     </html>

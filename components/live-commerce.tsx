@@ -30,6 +30,8 @@ import { AccountPanel } from "./account-panel";
 import { OrderHistory } from "./order-history";
 import { useI18n } from "./i18n-provider";
 
+import { PreorderList } from "./product-intent";
+
 type View = "catalog" | "account" | "orders";
 export function LiveCommerce({
   initialView = "catalog",
@@ -368,9 +370,9 @@ function CommerceSession({
             </button>
           </section>
         ) : view === "account" ? (
-          <AccountPanel company={company} onSave={setCompany} />
+          <><AccountPanel company={company} onSave={setCompany} /><PreorderList /></>
         ) : view === "orders" ? (
-          <OrderHistory orders={orders} onRepeat={repeat} />
+          <><PreorderList /><OrderHistory orders={orders} onRepeat={repeat} /></>
         ) : (
           <>
             {orderId && (

@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ignore-pattern .next",
+    "test:intents": "node --experimental-strip-types --test tests/product-intent.mjs",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
