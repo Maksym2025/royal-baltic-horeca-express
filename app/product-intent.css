@@ -468,3 +468,30 @@
     scroll-margin-top: 140px;
   }
 }
+
+@media (max-width: 650px) {
+  .hx-demand-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 28px;
+    gap: 4px;
+    align-items: start;
+  }
+  .hx-heart {
+    min-width: 0;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 4px;
+    font-size: 10px;
+    line-height: 1.35;
+    min-height: 64px;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+  .hx-demand-info summary {
+    min-width: 28px;
+    min-height: 44px;
+  }
+  .hx-demand-label {
+    font-size: 10px;
+  }
+}

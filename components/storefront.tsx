@@ -271,6 +271,7 @@ export function Storefront({
             const state = productStorage(p);
             const qty = cart[p.id] || 0;
             const announcement = intent.data.products.find(x => x.id === p.id);
+            const packageName = announcement?.packageTranslations[locale] || p.packageType;
             return (
               <article className="rb-shop-product" key={p.id}>
                 <Link href={`/products/${p.id}`} className="rb-shop-photo" aria-label={title(p)}>
@@ -299,8 +300,8 @@ export function Storefront({
                   <small>{p.origin || p.species || p.id}</small>
                   <h2><Link href={`/products/${p.id}`}>{title(p)}</Link></h2>
                   <p>
-                    {p.packageType}
-                    {p.unitWeight ? ` · ${p.unitWeight}` : ""}
+                    {packageName}
+                    {!announcement && p.unitWeight ? ` · ${p.unitWeight}` : ""}
                   </p>
                   <p className="rb-shop-description">
                     {productDescription(
@@ -313,7 +314,7 @@ export function Storefront({
                       {t("net")}
                     </span>
                   </div>
-                  <small>{p.packageType} · {t("perPack")}{p.priceNetto>0 && kilograms(p.unitWeight) !== null && <> · {money(p.priceNetto / kilograms(p.unitWeight)!)}/kg</>}</small>
+                  <small>{packageName} · {t("perPack")}{p.priceNetto>0 && kilograms(p.unitWeight) !== null && <> · {money(p.priceNetto / kilograms(p.unitWeight)!)}/kg</>}</small>
                   <p className={"rb-shop-availability"+(p.stock<=0?" rb-stock-empty":"")}>
                     {t(p.stock === 0 ? "out" : p.stock < 6 ? "low" : "stock")}
                   </p>
