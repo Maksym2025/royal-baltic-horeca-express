@@ -10,6 +10,7 @@ import "./design-fonts.css";
 import "./market.css";
 import "./buyer.css";
 import "./product-intent.css";
+import "./catalog-facets.css";
 import { ProductIntentProvider } from "@/components/product-intent-provider";
 export const metadata: Metadata = {
   title: "Royal Baltic · HoReCa Express",

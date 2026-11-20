@@ -17,6 +17,14 @@ export async function unifiedPublicCatalog():Promise<import('../live-api').LiveP
  return (await pool.query('select platform_public_catalog() result')).rows[0].result;
 }
 
+export async function withCatalogFacets<T extends {id:string}>(products:T[]):Promise<T[]>{
+ if(process.env.HORECA_CATALOG_FACETS!=='1')return products;
+ const facets=(await pool.query('select horeca_catalog_facets() result')).rows[0].result as ({id:string}&import('../product-facets').CatalogFacets)[];
+ const byId=new Map(facets.map(p=>[p.id,p]));
+ // Only editorially published cards belong in buyer-facing navigation.
+ return products.filter(p=>byId.has(p.id)).map(p=>({...p,...byId.get(p.id)}));
+}
+
 // Editorial data only: region-specific prices and stock ALWAYS come from platform_channel.
 export async function unifiedCardMetadata():Promise<import("../live-api").LiveProduct[]>{
  return (await pool.query("select platform_horeca_card_metadata() result")).rows[0].result;

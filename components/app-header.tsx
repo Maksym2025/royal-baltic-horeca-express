@@ -2,7 +2,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import {useEffect,useState} from "react";
-import {Globe,UserRound,ShoppingBag,Search,LayoutGrid,ChevronDown} from "lucide-react";
+import {Globe,UserRound,ShoppingBag,Search} from "lucide-react";
+import {CatalogMenu} from "./catalog-menu";
 import {useI18n} from "./i18n-provider";
 import {isLocale,locales,languageNames} from "@/lib/i18n/dictionaries";
 import {useSession} from "@/lib/auth-client";
@@ -16,7 +17,7 @@ export function AppHeader(){
  useEffect(()=>{const sync=()=>{const cart=readShopCart(session?.user.id||'guest');let boxes=0,kg=0,net=0;for(const p of products){const n=cart[p.id]||0;boxes+=n;kg+=n*(kilograms(p.unitWeight)||0);net+=n*p.priceNetto;}setTotals(old=>old.boxes===boxes&&old.kg===kg&&old.net===net?old:{boxes,kg,net});};sync();const timer=setInterval(sync,1000);window.addEventListener('focus',sync);return()=>{clearInterval(timer);window.removeEventListener('focus',sync)}},[session?.user.id,products]);
  return <header className="rb-header rb-reference-header">
  <Link href="/" className="rb-reference-brand"><Image src="/images/brand-whale.jpg" alt="" width={40} height={40}/><span><strong>ROYAL BALTIC</strong><small>B2B HORECA EXPRESS</small></span></Link>
- <details className="rb-header-categories"><summary><LayoutGrid size={17}/><span>{c.categories}</span><ChevronDown size={15}/></summary><nav aria-label={c.categories}><a href="/live">{t('all')}</a>{[...new Set(products.map(p=>p.category))].map(category=><a key={category} href={'/live?category='+encodeURIComponent(category)}>{category}</a>)}</nav></details>
+ <CatalogMenu products={products}/>
  <form action="/live" method="get" className="rb-header-search" role="search"><button type="submit" aria-label={t('search')}><Search size={18}/></button><input name="q" aria-label={t('search')} placeholder={c.search}/></form>
  <div className="rb-header-locale"><Globe size={17}/><label><span className="sr-only">{t('language')}</span><select value={locale} onChange={e=>{if(isLocale(e.target.value))setLocale(e.target.value)}}>{locales.map(l=><option key={l} value={l} title={languageNames[l]}>{l.toUpperCase()}</option>)}</select></label><span>· € EUR</span></div>
  <Link href="/account" className="rb-header-account"><UserRound size={21}/><span>{c.account}</span></Link>

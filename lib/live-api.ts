@@ -1,5 +1,6 @@
 "use client";
 import type { OrderStatus } from "./order-status";
+import type { CatalogFacets } from "./product-facets";
 export type LiveCompany = {
   id: string;
   name: string;
@@ -20,7 +21,7 @@ export type CatalogImage = {
   contentType: string;
   size: number;
 };
-export type LiveProduct = {
+export type LiveProduct = CatalogFacets & {
   id: string;
   title: string;
   category: string;

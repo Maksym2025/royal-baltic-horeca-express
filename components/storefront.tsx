@@ -15,7 +15,7 @@ import {
   Thermometer,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
-import { type LiveProduct, type LiveCategory } from "@/lib/live-api";
+import { type LiveProduct } from "@/lib/live-api";
 import { readShopCart, cartKey, type ShopCart } from "@/lib/shop-cart";
 import {
   productStorage,
@@ -26,6 +26,9 @@ import { useI18n } from "./i18n-provider";
 import { useProductIntent } from "./product-intent-provider";
 import { DemandHeart, PreorderControl, IntentFeedback } from "./product-intent";
 import { shopCopy } from "./shop-copy";
+import { catalogCopy, categoryLabel } from "./catalog-copy";
+import { matchesProcessing, processingMethods, type ProcessingMethod } from "@/lib/product-facets";
+import { ProductStorageBadge, ProductPreparation } from "./product-facts";
 export function Storefront({
   featured = false,
   basket = false,
@@ -37,11 +40,11 @@ export function Storefront({
 }) {
   const { t, locale } = useI18n();
   const c = shopCopy[locale];
+  const f = catalogCopy[locale];
   const intent = useProductIntent();
   const { data: session, isPending } = useSession();
   const userId = session?.user.id || "guest";
   const [products, setProducts] = useState<LiveProduct[]>([]);
-  const [categories, setCategories] = useState<LiveCategory[]>([]);
   const [cart, setCart] = useState<ShopCart>({});
   const [ready, setReady] = useState(false);
   const [locked, setLocked] = useState(false);
@@ -49,26 +52,45 @@ export function Storefront({
   const [error, setError] = useState(false);
   const [storage, setStorage] = useState<StorageCondition | "">("");
   const [category, setCategory] = useState("");
+  const [processing, setProcessing] = useState<ProcessingMethod | "">("");
   const [query, setQuery] = useState("");
   useEffect(()=>{
-    const params=new URLSearchParams(window.location.search);
-    // The external URL supplies the initial filters after hydration.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setQuery(params.get("q")||"");
-    setCategory(params.get("category")||"");
-  },[]);
+    if (featured || basket) return;
+    const restore = () => {
+      const params=new URLSearchParams(window.location.search);
+      setQuery(params.get("q")||"");
+      setCategory(params.get("category")||"");
+      const storage = params.get("storage"), processing = params.get("processing");
+      setStorage(storage === "chilled" || storage === "frozen" ? storage : "");
+      setProcessing(processingMethods.includes(processing as ProcessingMethod) ? processing as ProcessingMethod : "");
+    };
+    restore(); window.addEventListener("popstate", restore);
+    return () => window.removeEventListener("popstate", restore);
+  },[featured,basket]);
+  function filter(key: "q" | "category" | "storage" | "processing", value: string) {
+    const params = new URLSearchParams(window.location.search);
+    if(value) params.set(key,value); else params.delete(key);
+    const url = `${window.location.pathname}${params.size ? `?${params}` : ""}`;
+    window.history[key === "q" ? "replaceState" : "pushState"]({}, "", url);
+    if(key === "q") setQuery(value);
+    if(key === "category") setCategory(value);
+    if(key === "storage") setStorage(value as StorageCondition | "");
+    if(key === "processing") setProcessing(value as ProcessingMethod | "");
+  }
+  function resetFilters() {
+    setStorage(""); setProcessing(""); setCategory(""); setQuery("");
+    const params = new URLSearchParams(window.location.search);
+    ["storage","processing","category","q"].forEach(key => params.delete(key));
+    window.history.pushState({}, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
+  }
   const [view, setView] = useState<"grid" | "quick">("grid");
   const viewLabels = locale === "ru" ? ["Плитка", "Быстрый заказ"] : locale === "fr" ? ["Grille", "Commande rapide"] : locale === "de" ? ["Kacheln", "Schnellbestellung"] : ["Grid", "Quick order"];
   const [sort, setSort] = useState("name");
   const [notice, setNotice] = useState("");
   const load = useCallback(async () => {
     try {
-      const [p, cat] = await Promise.all([
-        fetch("/api/catalog").then(async r => { if (!r.ok) throw new Error("catalog"); return await r.json() as LiveProduct[]; }),
-        Promise.resolve([] as LiveCategory[]),
-      ]);
+      const p = await fetch("/api/catalog").then(async r => { if (!r.ok) throw new Error("catalog"); return await r.json() as LiveProduct[]; });
       setProducts(p);
-      setCategories(cat.length ? cat : [...new Set(p.map(x => x.category))].map(id => ({id,name:id,active:true,translations:{}})));
       setError(false);
     } catch {
       setError(true);
@@ -124,6 +146,7 @@ export function Storefront({
       (!selection || selection.includes(p.id)) &&
       (!basket || (cart[p.id] || 0) > 0) &&
       (!storage || productStorage(p) === storage) &&
+      matchesProcessing(p, processing) &&
       (!category || p.category === category) &&
       `${title(p)} ${p.id} ${p.species||""} ${p.description||""}`
         .toLocaleLowerCase(locale)
@@ -131,6 +154,11 @@ export function Storefront({
   );
   filtered.sort((a,b) => Number(b.stock > 0) - Number(a.stock > 0) || (sort === "price" ? a.priceNetto-b.priceNetto : title(a).localeCompare(title(b),locale)));
   const shown = featured ? filtered.slice(0, 4) : filtered;
+  const categories = [...new Set(products.map(p => p.category))];
+  const matchesQuery = (p:LiveProduct) => `${title(p)} ${p.id} ${p.species || ""} ${p.description || ""}`.toLocaleLowerCase(locale).includes(query.trim().toLocaleLowerCase(locale));
+  const countStorage = (value:string) => products.filter(p => (!value || productStorage(p) === value) && matchesProcessing(p,processing) && (!category || p.category === category) && matchesQuery(p)).length;
+  const countProcessing = (value:string) => products.filter(p => (!storage || productStorage(p) === storage) && matchesProcessing(p,value) && (!category || p.category === category) && matchesQuery(p)).length;
+  const countCategory = (value:string) => products.filter(p => (!storage || productStorage(p) === storage) && matchesProcessing(p,processing) && (!value || p.category === value) && matchesQuery(p)).length;
   const lines = products.filter((p) => (cart[p.id] || 0) > 0);
   const count = Object.values(cart).reduce((a, b) => a + b, 0);
   const net = lines.reduce((n, p) => n + p.priceNetto * cart[p.id], 0);
@@ -173,11 +201,13 @@ export function Storefront({
             <input
               type="search"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => filter("q", e.target.value)}
               placeholder={t("search")}
             />
           </label>
-          <div className="rb-storage-filters" aria-label={t("catalog")}>
+          <section className="hx-catalog-filters" aria-label={f.allCatalog}>
+          <p className="hx-filter-hint">{f.hint}</p>
+          <fieldset className="hx-storage-options"><legend>{f.storage}</legend>
             {[
               ["", t("all")],
               ["chilled", c.chilled],
@@ -188,7 +218,7 @@ export function Storefront({
                 type="button"
                 className={storage === id ? "active" : ""}
                 aria-pressed={storage === id}
-                onClick={() => setStorage(id as StorageCondition | "")}
+                onClick={() => filter("storage", id)}
               >
                 {id === "frozen" ? (
                   <Snowflake size={18} />
@@ -197,30 +227,40 @@ export function Storefront({
                 ) : (
                   <Fish size={18} />
                 )}{" "}
-                {label}
+                <span>{label}</span><small>{loading ? "…" : countStorage(id)}</small>
               </button>
             ))}
-          </div>
-          <label className="market-sort">{t("catalog")} <select aria-label={t("catalog")} value={sort} onChange={e=>setSort(e.target.value)}><option value="name">A → Z</option><option value="price">€ ↑</option></select></label>
-          <div className="rb-categories" aria-label={t("all")}>
+          </fieldset>
+          <fieldset className="hx-filter-row"><legend>{f.processing}</legend><div className="hx-filter-chips">
+            {(["", "smoked", "hot-smoked", "cold-smoked", "salted", "dried"] as const).map(method => <button type="button" key={method} aria-pressed={processing === method} onClick={() => filter("processing", method)}>{method ? f.methods[method] : f.all}<small>{loading ? "…" : countProcessing(method)}</small></button>)}
+          </div></fieldset>
+          <fieldset className="hx-filter-row"><legend>{f.family}</legend><div className="hx-filter-chips">
             <button
               className={!category ? "active" : ""}
               aria-pressed={!category}
-              onClick={() => setCategory("")}
+              type="button"
+              onClick={() => filter("category", "")}
             >
-              {t("all")}
+              {t("all")}<small>{loading ? "…" : countCategory("")}</small>
             </button>
             {categories.map((cat) => (
               <button
-                key={cat.id}
-                className={category === cat.id ? "active" : ""}
-                aria-pressed={category === cat.id}
-                onClick={() => setCategory(cat.id)}
+                key={cat}
+                type="button"
+                className={category === cat ? "active" : ""}
+                aria-pressed={category === cat}
+                onClick={() => filter("category", cat)}
               >
-                {cat.translations?.[locale] || cat.name}
+                {categoryLabel(cat,locale)}<small>{loading ? "…" : countCategory(cat)}</small>
               </button>
             ))}
+          </div></fieldset>
+          <div className="hx-mobile-filters">
+            <label>{f.processing}<select value={processing} onChange={e=>filter("processing",e.target.value)}>{(["", "smoked", "hot-smoked", "cold-smoked", "salted", "dried"] as const).map(method=><option key={method} value={method}>{method ? f.methods[method] : f.all} · {loading ? "…" : countProcessing(method)}</option>)}</select></label>
+            <label>{f.family}<select value={category} onChange={e=>filter("category",e.target.value)}><option value="">{f.all} · {loading ? "…" : countCategory("")}</option>{categories.map(cat=><option key={cat} value={cat}>{categoryLabel(cat,locale)} · {loading ? "…" : countCategory(cat)}</option>)}</select></label>
           </div>
+          </section>
+          <div className="hx-catalog-results"><p role="status">{loading ? t("loading") : `${filtered.length} ${f.results}`}</p>{(storage || processing || category || query) && <button type="button" onClick={resetFilters}>{f.reset}</button>}<label className="market-sort">{f.sort} <select aria-label={f.sort} value={sort} onChange={e=>setSort(e.target.value)}><option value="name">{f.name}</option><option value="price">{f.price}</option></select></label></div>
         </>
       ) : (
         <button
@@ -268,7 +308,6 @@ export function Storefront({
       ) : (
         <div className={view === "quick" && !featured && !basket ? "rb-shop-grid rb-quick-list" : "rb-shop-grid"}>
           {shown.map((p) => {
-            const state = productStorage(p);
             const qty = cart[p.id] || 0;
             const announcement = intent.data.products.find(x => x.id === p.id);
             const packageName = announcement?.packageTranslations[locale] || p.packageType;
@@ -286,19 +325,12 @@ export function Storefront({
                   ) : (
                     <Fish size={48} aria-label={title(p)} />
                   )}
-                  <span
-                    className={`rb-shop-condition rb-shop-condition--${state}`}
-                  >
-                    {state === "chilled"
-                      ? c.chilled
-                      : state === "frozen"
-                        ? c.frozen
-                        : c.unknown}
-                  </span>
+                  <ProductStorageBadge product={p} />
                 </Link>
                 <div className="rb-shop-product-body">
                   <small>{p.origin || p.species || p.id}</small>
                   <h2><Link href={`/products/${p.id}`}>{title(p)}</Link></h2>
+                  <ProductPreparation product={p}/>
                   <p>
                     {packageName}
                     {!announcement && p.unitWeight ? ` · ${p.unitWeight}` : ""}
@@ -361,11 +393,11 @@ export function Storefront({
         </div>
       )}
       {!loading && !error && !shown.length && (
-        <p className="rb-empty">
+        <div className="rb-empty"><p>
           {t(
             basket ? "emptyCart" : products.length ? "noMatches" : "noProducts",
           )}
-        </p>
+        </p>{!basket && (storage || processing || category || query) && <button className="rb-secondary" type="button" onClick={resetFilters}>{f.reset}</button>}</div>
       )}
       {!featured && count > 0 && (
         <aside className="rb-shop-basket" aria-label={t("cart")}>

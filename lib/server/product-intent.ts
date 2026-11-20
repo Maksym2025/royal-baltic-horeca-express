@@ -1,6 +1,7 @@
 import { Pool } from "pg";
 import { ApiError } from "./db";
 import type { AnnouncedProduct, IntentData } from "../product-intent";
+import { withCatalogFacets } from "./unified";
 const pool = new Pool({
   connectionString: process.env.CHANNEL_DATABASE_URL,
   max: 2,
@@ -8,8 +9,8 @@ const pool = new Pool({
 });
 export async function announcedProducts(): Promise<AnnouncedProduct[]> {
   if (process.env.HORECA_INTENTS_ENABLED !== "1") return [];
-  return (await pool.query("select horeca_launch_public() result")).rows[0]
-    .result;
+  return withCatalogFacets((await pool.query("select horeca_launch_public() result")).rows[0]
+    .result);
 }
 export async function productIntentData(
   subject: string | null,

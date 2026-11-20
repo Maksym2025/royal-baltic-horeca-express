@@ -11,6 +11,7 @@ export function productStorage(product: {
   title?: string;
   description?: string | null;
   category?: string;
+  translations?: Record<string, { title?: string; description?: string }>;
 }): StorageCondition {
   if (
     product.storageCondition &&
@@ -22,7 +23,7 @@ export function productStorage(product: {
   );
   if (explicit) return explicit[1] as StorageCondition;
   const text =
-    `${product.title || ""} ${product.description || ""} ${product.category || ""}`
+    `${product.title || ""} ${product.description || ""} ${product.category || ""} ${Object.values(product.translations || {}).flatMap(t => [t.title, t.description]).join(" ")}`
       .normalize("NFKC")
       .toLowerCase();
   const frozen =
