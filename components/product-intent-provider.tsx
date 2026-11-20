@@ -45,7 +45,9 @@ export function ProductIntentProvider({
   const [loading, setLoading] = useState(true),
     [failed, setFailed] = useState(false),
     [busy, setBusy] = useState(false),
-    [notice, setNotice] = useState(""),
+    [notice, setNotice] = useState<
+      "" | "signin" | "saved" | "cancelled" | "approval" | "error"
+    >(""),
     [needsLogin, setNeedsLogin] = useState(false);
   const userId = session?.user.id;
   const refresh = useCallback(async () => {
@@ -83,7 +85,7 @@ export function ProductIntentProvider({
           );
         } catch {}
       setNeedsLogin(true);
-      setNotice(c.signin);
+      setNotice("signin");
       return;
     }
     setBusy(true);
@@ -96,8 +98,8 @@ export function ProductIntentProvider({
       setNotice(
         body.action === "reserve"
           ? body.quantity
-            ? c.saved
-            : c.cancelled
+            ? "saved"
+            : "cancelled"
           : "",
       );
       if (body.action === "reserve")
@@ -106,7 +108,7 @@ export function ProductIntentProvider({
         } catch {}
     } catch (e) {
       setNotice(
-        e instanceof HttpError && e.status === 403 ? c.approval : c.error,
+        e instanceof HttpError && e.status === 403 ? "approval" : "error",
       );
     } finally {
       setBusy(false);
@@ -119,7 +121,7 @@ export function ProductIntentProvider({
         loading,
         failed,
         busy,
-        notice,
+        notice: notice ? c[notice] : "",
         needsLogin,
         refresh,
         reserve: (productId, quantity) =>
